@@ -1,5 +1,10 @@
-var express = require('express');
+"use strict";
+
+var express = require('express'); 
 var router = express.Router();
+
+var testService = require('../services/test-service');
+testService = new testService();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -21,5 +26,11 @@ router.get('/', function(req, res, next) {
   "joined": false
 }]);
 });
+
+router.get("/greet", function(req, res, next){
+    let test = testService.Greet();
+    res.send(test);
+});
+
 
 module.exports = router;
