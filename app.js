@@ -9,6 +9,9 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var ideas = require('./routes/ideas');
 
+var databaseSetup = require("./infrastructure/database-setup");
+databaseSetup.SetupNoSqlTables();
+
 var app = express();
 
 // view engine setup
