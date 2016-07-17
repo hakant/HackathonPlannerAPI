@@ -10,23 +10,25 @@ const Helpers = require('../utilities/helpers');
 let helpers = new Helpers();
 
 router.get('/', function (req, res, next) {
-  //var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
-  var docClient = new AWS.DynamoDB.DocumentClient();
+  var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
 
   var params = {
     TableName: "Ideas"
   };
 
-  docClient.scan(params, function (err, data) {
-    if (err) {
-      console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
-    } else {
-      console.log("Query succeeded.");
-      data.Items.forEach(function (idea) {
+  docClient.scanAsync(params)
+  .then(data => {
+    console.log("Query succeeded.");
+
+    data.Items.forEach(idea => {
         helpers.ReplacePropertyValuesOf(idea, null, "");
       });
-      res.json(data.Items);
-    }
+
+    res.json(data.Items);
+  }) 
+  .catch(err => {
+    let errorMessage = `Unable to query. Error: ${JSON.stringify(err)}`;
+    res.status(500).send(errorMessage);
   });
 });
 
@@ -38,16 +40,16 @@ router.post("/", function (req, res, next) {
     Item: helpers.ReplacePropertyValuesOf(req.body, "", null)
   };
 
-  docClient.putAsync(params).then(function (data) {
+  docClient.putAsync(params)
+  .then(data => {
     console.log("Added item:", JSON.stringify(data));
-    }, function(err){
-      console.error("Unable to add item. Error JSON:", JSON.stringify(err));
-    });
-
     res.sendStatus(200);
+  })
+  .catch(err => {
+    let errorMessage = `Unable to add item. Error JSON: ${JSON.stringify(err)}`; 
+    console.error(errorMessage);
+    res.status(500).send(errorMessage);
+  })
 });
-
-
-
 
 module.exports = router;
