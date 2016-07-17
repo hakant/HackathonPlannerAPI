@@ -22,12 +22,10 @@ class DatabaseSetup {
                     var params = {
                         TableName : "Ideas",
                         KeySchema: [       
-                            { AttributeName: "id", KeyType: "HASH"},  //Partition key
-                            { AttributeName: "title", KeyType: "RANGE" }  //Sort key
+                            { AttributeName: "id", KeyType: "HASH"}   //Partition key
                         ],
                         AttributeDefinitions: [       
                             { AttributeName: "id", AttributeType: "S" },
-                            { AttributeName: "title", AttributeType: "S" }
                         ],
                         ProvisionedThroughput: {       
                             ReadCapacityUnits: 10, 
