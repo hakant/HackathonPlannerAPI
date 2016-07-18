@@ -9,7 +9,7 @@ let helpers = new Helpers();
 class IdeaPrePostProcessor {
 
     constructor() {
-        this._ideaSkeleton = "id,user(login,id,avatar_url,name),title,overview,description,liked-list,joined-list";
+        this._ideaSkeleton = "id,user(login,id,avatar_url,name),title,overview,description,likedList,joinedList";
     }
 
     PreProcess(object) {
@@ -18,10 +18,10 @@ class IdeaPrePostProcessor {
     }
 
     PostProcess(object){
-        object.liked = _.contains(object["liked-list"], object.user.id);
-        object.joined = _.contains(object["joined-list"], object.user.id);
-        object["like-count"] = object["liked-list"].length;
-        object["team-count"] = object["joined-list"].length;
+        object.liked = _.contains(object["likedList"], object.user.id);
+        object.joined = _.contains(object["joinedList"], object.user.id);
+        object["likeCount"] = object["likedList"].length;
+        object["teamCount"] = object["joinedList"].length;
 
         return helpers.ReplacePropertyValuesOf(object, null, "");
     }

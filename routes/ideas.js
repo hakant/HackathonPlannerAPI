@@ -53,7 +53,7 @@ router.post("/add", function (req, res, next) {
     let errorMessage = `Unable to add item. Error JSON: ${JSON.stringify(err)}`; 
     console.error(errorMessage);
     res.status(500).send(errorMessage);
-  })
+  });
 });
 
 router.post("/edit-title", function (req, res, next) {
@@ -81,7 +81,7 @@ router.post("/edit-title", function (req, res, next) {
     let errorMessage = `Unable to update item. Error JSON: ${JSON.stringify(err)}`; 
     console.error(errorMessage);
     res.status(500).send(errorMessage);
-  })
+  });
 });
 
 router.post("/edit-overview", function (req, res, next) {
@@ -109,7 +109,7 @@ router.post("/edit-overview", function (req, res, next) {
     let errorMessage = `Unable to update item. Error JSON: ${JSON.stringify(err)}`; 
     console.error(errorMessage);
     res.status(500).send(errorMessage);
-  })
+  });
 });
 
 router.post("/edit-description", function (req, res, next) {
@@ -137,7 +137,67 @@ router.post("/edit-description", function (req, res, next) {
     let errorMessage = `Unable to update item. Error JSON: ${JSON.stringify(err)}`; 
     console.error(errorMessage);
     res.status(500).send(errorMessage);
+  });
+});
+
+router.post("/like", function (req, res, next) {
+  var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+
+  var posted = req.body;
+  var params = {
+    TableName: tableName,
+    Key: {
+      id: posted.ideaId
+    },
+    UpdateExpression: "set likedList = list_append (likedList, :userId)",
+    ConditionExpression: "not contains (likedList, :userId)",
+    ExpressionAttributeValues:{
+        ":userId": [posted.userId]
+    },
+    ReturnValues:"UPDATED_NEW"
+  };
+
+  docClient.updateAsync(params)
+  .then(data => {
+    console.log("Updated likedList:", JSON.stringify(data));
+    res.sendStatus(200);
   })
+  .catch(err => {
+    let errorMessage = `Unable to update item. Error JSON: ${JSON.stringify(err)}`; 
+    console.error(errorMessage);
+    res.status(500).send(errorMessage);
+  });
+
+});
+
+router.post("/join", function (req, res, next) {
+  var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+
+  var posted = req.body;
+  var params = {
+    TableName: tableName,
+    Key: {
+      id: posted.ideaId
+    },
+    UpdateExpression: "set joinedList = list_append (joinedList, :userId)",
+    ConditionExpression: "not contains (joinedList, :userId)",
+    ExpressionAttributeValues:{
+        ":userId": [posted.userId]
+    },
+    ReturnValues:"UPDATED_NEW"
+  };
+
+  docClient.updateAsync(params)
+  .then(data => {
+    console.log("Updated joinedlist:", JSON.stringify(data));
+    res.sendStatus(200);
+  })
+  .catch(err => {
+    let errorMessage = `Unable to update item. Error JSON: ${JSON.stringify(err)}`; 
+    console.error(errorMessage);
+    res.status(500).send(errorMessage);
+  });
+
 });
 
 
