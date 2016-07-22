@@ -9,7 +9,7 @@ class DatabaseSetup {
     SetupNoSqlTables() {
         AWS.config.update({
             region: "eu-central-1",
-            endpoint: "dynamodb.eu-central-1.amazonaws.com"
+            endpoint: "http://localhost:8000"
         });
 
         var dynamodb = Promise.promisifyAll(new AWS.DynamoDB());
