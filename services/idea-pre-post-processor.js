@@ -20,10 +20,10 @@ class IdeaPrePostProcessor {
     PostProcess(object){
         // TODO: This will change when authentication is implemented 
         // It should not be "object.user.id" instead it should be authenticated userid
-        object.liked = _.contains(object["likedList"], object.user.id);
-        object.joined = _.contains(object["joinedList"], object.user.id);
-        object["likeCount"] = object["likedList"].length;
-        object["teamCount"] = object["joinedList"].length;
+        object.liked = _.contains(object.likedList, object.user.id);
+        object.joined = _.contains(object.joinedList, object.user.id);
+        object.likeCount = object.likedList.length;
+        object.teamCount = object.joinedList.length;
 
         return helpers.ReplacePropertyValuesOf(object, null, "");
     }
