@@ -4,9 +4,14 @@ const passport = require('passport');
 const GitHubStrategy = require('passport-github2').Strategy;
 const https = require('https');
 const _ = require('underscore');
+const nconf = require("nconf");
 
-var GITHUB_CLIENT_ID = "542d0f0fafe92d2064a2";
-var GITHUB_CLIENT_SECRET = "0901851d9ce1207e927b98b75602435bce106e3d";
+var config = nconf.get("GitHub_Auth");
+var GITHUB_CLIENT_ID = config.ClientId;
+var GITHUB_CLIENT_SECRET = config.ClientSecret;
+
+config = nconf.get("HostInfo");
+var HOST_URL = config.HostUrl;
 
 class GitHubAuthSetup {
 
@@ -38,7 +43,7 @@ class GitHubAuthSetup {
         passport.use(new GitHubStrategy({
             clientID: GITHUB_CLIENT_ID,
             clientSecret: GITHUB_CLIENT_SECRET,
-            callbackURL: "http://localhost:3000/auth/github/callback"
+            callbackURL: `${HOST_URL}/auth/github/callback`
         },
             function (accessToken, refreshToken, profile, done) {
                 // asynchronous verification, for effect...
