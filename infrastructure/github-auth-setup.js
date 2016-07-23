@@ -68,9 +68,9 @@ class GitHubAuthSetup {
                                 return done(null, profile);
                             } else {
                                 // TODO: How to display error message here? Look into passportjs
-                                return done({
-                                    error: `User ${profile.username} does not belong to NIPOSoftwareBV`
-                                }, null);
+                                return done(null, false, { 
+                                    message: `User ${profile.username} does not belong to NIPOSoftwareBV`
+                                });
                             }
                         });
                     });

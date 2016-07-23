@@ -34,10 +34,14 @@ router.get('/github',
 //   login page.  Otherwise, the primary route function will be called,
 //   which, in this example, will redirect the user to the home page.
 router.get('/github/callback',
-    passport.authenticate('github', { failureRedirect: '/login' }),
-    function (req, res) {
-        res.redirect('/');
-    });
+    passport.authenticate('github', {
+        successRedirect: '/',
+        failureRedirect: '/auth/error'
+    }));
+
+router.get('/error', function (req, res) {
+    res.send("Unfortunately this hosted HackathonPlanner is only available to members of NIPOSoftwareBV organization.");
+});
 
 router.get('/logout', function (req, res) {
     req.logout();
