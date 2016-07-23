@@ -22,7 +22,7 @@ router.get('/login', function (req, res) {
 //   the user to github.com.  After authorization, GitHub will redirect the user
 //   back to this application at /auth/github/callback
 router.get('/github',
-    passport.authenticate('github', { scope: ['user:email'] }),
+    passport.authenticate('github', { scope: ['user:email', 'read:org'] }),
     function (req, res) {
         // The request will be redirected to GitHub for authentication, so this
         // function will not be called.
@@ -51,7 +51,7 @@ router.get('/logout', function (req, res) {
 //   login page.
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) { return next(); }
-    res.redirect('/login')
+    res.redirect('/auth/login')
 }
 
 module.exports = router;

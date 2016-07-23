@@ -2,13 +2,15 @@
 
 const passport = require('passport');
 const GitHubStrategy = require('passport-github2').Strategy;
+const https = require('https');
+const _ = require('underscore');
 
 var GITHUB_CLIENT_ID = "542d0f0fafe92d2064a2";
 var GITHUB_CLIENT_SECRET = "0901851d9ce1207e927b98b75602435bce106e3d";
 
 class GitHubAuthSetup {
 
-    constructor(app){
+    constructor(app) {
         this._app = app;
     }
 
@@ -41,12 +43,32 @@ class GitHubAuthSetup {
             function (accessToken, refreshToken, profile, done) {
                 // asynchronous verification, for effect...
                 process.nextTick(function () {
-
-                    // To keep the example simple, the user's GitHub profile is returned to
-                    // represent the logged-in user.  In a typical application, you would want
-                    // to associate the GitHub account with a user record in your database,
-                    // and return that user instead.
-                    return done(null, profile);
+                    return https.get({
+                        host: 'api.github.com',
+                        //path: `/users/${profile.username}/orgs`,
+                        path: `/user/orgs`,
+                        headers: {
+                            "Authorization": `token ${accessToken}`,
+                            "User-Agent": "nodejs-http"
+                        }
+                    }, (response) => {
+                        var body = '';
+                        response.on('data', (d) => {
+                            body += d 
+                        });
+                        response.on('end', () => {
+                            var orgs = JSON.parse(body);
+                            if (_.some(orgs, (org) => { return org.id === 11661932 })){
+                                // NIPOSoftwareBV
+                                return done(null, profile);
+                            } else {
+                                // TODO: How to display error message here? Look into passportjs
+                                return done({
+                                    error: `User ${profile.username} does not belong to NIPOSoftwareBV`
+                                }, null);
+                            }
+                        });
+                    });
                 });
             }
         ));
