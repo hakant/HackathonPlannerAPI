@@ -141,12 +141,19 @@ class IdeaRepository {
     }
 
     JoinIdea(ideaId, userId) {
-        return this.GetIdea(ideaId)
+        return this.GetIdeasThatUserAlreadyJoined(userId)
+            .then(ideas => {
+                // todo: execute all of these in a promise.all aggregator
+                return Promise.all(ideas.map((idea) => {
+                    return this.UnJoinIdea(idea.id, userId);
+                }));
+            })
+            .then(() => {
+                return this.GetIdea(ideaId);
+            })
             .then(idea => {
                 var index = _.indexOf(idea.joinedList, userId);
-                if (index > -1) {
-                    idea.joinedList.splice(index, 1);
-                } else {
+                if (index < 0) {
                     idea.joinedList.push(userId);
                 }
                 return idea;
@@ -154,6 +161,37 @@ class IdeaRepository {
                 return this.UpsertIdea(idea);
             });
     }
+
+    UnJoinIdea(ideaId, userId) {
+        return this.GetIdea(ideaId)
+            .then(idea => {
+                var index = _.indexOf(idea.joinedList, userId);
+                if (index > -1) {
+                    idea.joinedList.splice(index, 1);
+                }
+                return idea;
+            }).then(idea => {
+                return this.UpsertIdea(idea);
+            });
+    }
+
+    GetIdeasThatUserAlreadyJoined(userId){
+        var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+
+        var params = {
+            TableName: this.tableName,
+            ProjectionExpression:"id",
+            FilterExpression: "contains(joinedList, :userId)",
+            ExpressionAttributeValues: {
+                ":userId": userId
+            }
+        };
+
+        return docClient.scanAsync(params)
+            .then(data => { 
+                return data.Items; 
+            });
+        };
 }
 
 module.exports = IdeaRepository;

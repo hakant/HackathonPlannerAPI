@@ -95,6 +95,19 @@ router.post("/join", function (req, res, next) {
     });
 });
 
+router.post("/unjoin", function (req, res, next) {
+  ideaRepository.UnJoinIdea(req.body.ideaId, req.body.userId)
+    .then(data => {
+      console.log("Updated joinedList:", JSON.stringify(data));
+      res.sendStatus(200);
+    })
+    .catch(err => {
+      let errorMessage = `Unable to update item. Error JSON: ${err}`;
+      console.error(errorMessage);
+      res.status(500).send(errorMessage);
+    });
+});
+
 
 
 module.exports = router;
