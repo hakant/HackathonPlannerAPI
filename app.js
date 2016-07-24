@@ -15,7 +15,6 @@ nconf.argv()
 
 var auth = require('./routes/auth');
 var routes = require('./routes/index');
-var users = require('./routes/users');
 var ideas = require('./routes/ideas');
 
 var GithubAuthSetup = require("./infrastructure/github-auth-setup");
@@ -41,8 +40,12 @@ githubAuth.Setup();
 
 app.use('/', routes);
 app.use('/auth', auth);
-app.use('/users', users);
-app.use('/ideas', ideas);
+app.use('/ideas', function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) { 
+        return next(); 
+    }
+    res.redirect('/auth/login');
+}, ideas);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
