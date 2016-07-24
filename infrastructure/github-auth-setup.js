@@ -13,6 +13,9 @@ var GITHUB_CLIENT_SECRET = config.ClientSecret;
 config = nconf.get("HostInfo");
 var HOST_URL = config.HostUrl;
 
+var organization = nconf.get("Organization");
+
+
 class GitHubAuthSetup {
 
     constructor(app) {
@@ -63,14 +66,10 @@ class GitHubAuthSetup {
                         });
                         response.on('end', () => {
                             var orgs = JSON.parse(body);
-                            if (_.some(orgs, (org) => { return org.id === 11661932 })){
-                                // NIPOSoftwareBV
+                            if (_.some(orgs, (org) => { return org.id === organization.Id})){
                                 return done(null, profile);
                             } else {
-                                // TODO: How to display error message here? Look into passportjs
-                                return done(null, false, { 
-                                    message: `User ${profile.username} does not belong to NIPOSoftwareBV`
-                                });
+                                return done(null, false);
                             }
                         });
                     });

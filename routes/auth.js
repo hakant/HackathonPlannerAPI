@@ -3,6 +3,8 @@
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
+const nconf = require("nconf");
+var organization = nconf.get("Organization");
 
 router.get('/', function (req, res) {
     res.json({ user: req.user });
@@ -40,7 +42,7 @@ router.get('/github/callback',
     }));
 
 router.get('/error', function (req, res) {
-    res.send("Unfortunately this hosted HackathonPlanner is only available to members of NIPOSoftwareBV organization.");
+    res.send(`Unfortunately this hosted HackathonPlanner is only available to members of ${organization.Name} organization.`);
 });
 
 router.get('/logout', function (req, res) {

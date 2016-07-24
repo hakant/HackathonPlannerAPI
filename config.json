@@ -9,5 +9,9 @@
     "GitHub_Auth": {
         "ClientId": "",
         "ClientSecret": ""
+    },
+    "Organization": {
+        "Id": 11661932,
+        "Name": "NIPOSoftwareBV"
     }
 }
