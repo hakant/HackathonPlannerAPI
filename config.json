@@ -4,7 +4,8 @@
         "Endpoint": "http://localhost:8000"
     },
     "HostInfo": {
-        "HostUrl": "http://localhost:3000"
+        "HostUrl": "http://localhost:3000",
+        "SPAUrl": "http://localhost:9000"
     },
     "GitHub_Auth": {
         "ClientId": "",

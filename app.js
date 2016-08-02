@@ -27,9 +27,18 @@ databaseSetup.SetupNoSqlTables();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
+var host = nconf.get("HostInfo");
+var corsOptions = {
+  origin: host.SPAUrl,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  preflightContinue: false
+};
+
+
 // uncomment after placing your favicon in /public
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -43,8 +52,9 @@ app.use('/auth', auth);
 app.use('/ideas', function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) { 
         return next(); 
+    } else {
+      res.status(401).send('Unauthorized');
     }
-    res.redirect('/auth/login');
 }, ideas);
 
 // catch 404 and forward to error handler

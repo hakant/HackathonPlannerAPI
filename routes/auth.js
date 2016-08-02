@@ -5,6 +5,7 @@ const passport = require('passport');
 const router = express.Router();
 const nconf = require("nconf");
 var organization = nconf.get("Organization");
+var host = nconf.get("HostInfo");
 
 router.get('/', function (req, res) {
     res.json({ user: req.user });
@@ -37,7 +38,7 @@ router.get('/github',
 //   which, in this example, will redirect the user to the home page.
 router.get('/github/callback',
     passport.authenticate('github', {
-        successRedirect: '/',
+        successRedirect: host.SPAUrl,
         failureRedirect: '/auth/error'
     }));
 
