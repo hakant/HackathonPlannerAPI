@@ -8,15 +8,15 @@ var organization = nconf.get("Organization");
 var host = nconf.get("HostInfo");
 
 router.get('/', function (req, res) {
-    res.json({ user: req.user });
+    res.json(req.user);
 });
 
 router.get('/account', ensureAuthenticated, function (req, res) {
-    res.json({ user: req.user });
+    res.json(req.user);
 });
 
 router.get('/login', function (req, res) {
-    res.json({ user: req.user });
+    res.json(req.user);
 });
 
 // GET /auth/github
