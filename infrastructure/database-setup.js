@@ -2,14 +2,16 @@
 
 const Promise = require('bluebird');
 const AWS = require("aws-sdk");
+const nconf = require("nconf");
 
 
 class DatabaseSetup {
 
     SetupNoSqlTables() {
+        var config = nconf.get("DynamoDb");
         AWS.config.update({
-            region: "eu-central-1",
-            endpoint: "http://localhost:8000"
+            region: config.Region,
+            endpoint: config.Endpoint
         });
 
         var dynamodb = Promise.promisifyAll(new AWS.DynamoDB());

@@ -1,0 +1,18 @@
+{
+    "DynamoDb": {
+        "Region": "eu-central-1",
+        "Endpoint": "http://localhost:8000"
+    },
+    "HostInfo": {
+        "HostUrl": "http://localhost:3000",
+        "SPAUrl": "http://localhost:9000"
+    },
+    "GitHub_Auth": {
+        "ClientId": "",
+        "ClientSecret": ""
+    },
+    "Organization": {
+        "Id": 11661932,
+        "Name": "NIPOSoftwareBV"
+    }
+}

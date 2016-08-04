@@ -17,11 +17,9 @@ class IdeaPrePostProcessor {
         return helpers.ReplacePropertyValuesOf(sanitizedObject, "", null);      // replace all empty strings with nulls
     }
 
-    PostProcess(object){
-        // TODO: This will change when authentication is implemented 
-        // It should not be "object.user.id" instead it should be authenticated userid
-        object.liked = _.contains(object.likedList, object.user.id);
-        object.joined = _.contains(object.joinedList, object.user.id);
+    PostProcess(object, user){
+        object.liked = _.contains(object.likedList, user.id);
+        object.joined = _.contains(object.joinedList, user.id);
         object.likeCount = object.likedList.length;
         object.teamCount = object.joinedList.length;
 
