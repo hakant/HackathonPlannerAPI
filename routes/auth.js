@@ -61,7 +61,7 @@ function ensureAuthenticated(req, res, next) {
         return next(); 
     }
     
-    res.redirect('/auth/login')
+    res.status(401).send('Unauthorized');
 }
 
 module.exports = router;
