@@ -22,13 +22,16 @@ class IdeaRepository {
             TableName: this.tableName
         };
 
+        var items = [];
         return docClient.scanAsync(params)
             .then(data => {
                 data.Items.forEach(idea => {
-                    ideaPrePostProcessor.PostProcess(idea, user);
+                    items.push(
+                        ideaPrePostProcessor.PostProcess(idea, user)
+                        );
                 });
 
-                return data.Items;
+                return items;
             });
     }
 
@@ -50,6 +53,7 @@ class IdeaRepository {
 
     UpsertIdea(idea, user) {
         var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+        idea = ideaPrePostProcessor.PreProcess(idea);
 
         if (typeof user !== "undefined"){
             // Mark the current user as the owner of the idea
@@ -74,6 +78,7 @@ class IdeaRepository {
 
     EditTitle(idea, user) {
         var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+        idea = ideaPrePostProcessor.PreProcess(idea);
 
         var params = {
             TableName: tableName,
@@ -95,6 +100,7 @@ class IdeaRepository {
 
     EditOverview(idea, user) {
         var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+        idea = ideaPrePostProcessor.PreProcess(idea);
 
         var params = {
             TableName: tableName,
@@ -116,6 +122,7 @@ class IdeaRepository {
 
     EditDescription(idea, user) {
         var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+        idea = ideaPrePostProcessor.PreProcess(idea);
 
         var params = {
             TableName: tableName,
@@ -154,7 +161,7 @@ class IdeaRepository {
         return this.GetIdeasThatUserAlreadyJoined(user)
             .then(ideas => {
                 return Promise.all(ideas.map((idea) => {
-                    return this.UnJoinIdea(idea.id, user.id);
+                    return this.UnJoinIdea(idea.id, user);
                 }));
             })
             .then(() => {
