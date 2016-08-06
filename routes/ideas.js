@@ -20,7 +20,7 @@ router.get('/', function (req, res, next) {
 });
 
 router.post("/add", function (req, res, next) {
-  ideaRepository.UpsertIdea(req.body, req.user)
+  ideaRepository.InsertIdea(req.body, req.user)
     .then(data => res.sendStatus(200))
     .catch(err => {
       let errorMessage = `Unable to add item. Error JSON: ${JSON.stringify(err)}`;

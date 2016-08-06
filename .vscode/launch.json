@@ -15,7 +15,11 @@
                 "--nolazy"
             ],
             "env": {
-                "NODE_ENV": "development"
+                "NODE_ENV": "development",
+                "GitHub_Auth:ClientId": "d35731a09f6d0d9c0e93",
+                "GitHub_Auth:ClientSecret": "06daa7648a94b4364e10b929aba64bb957e539d5", 
+                "HostInfo:HostUrl": "http://localhost:3000", 
+                "HostInfo:SPAUrl": "http://localhost:9000" 
             },
             "externalConsole": false,
             "sourceMaps": false,
