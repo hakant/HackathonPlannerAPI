@@ -31,7 +31,7 @@ class IdeaRepository {
                         );
                 });
 
-                return items;
+                return _.sortBy(items, (item) => -1 * item.likeCount);
             });
     }
 
