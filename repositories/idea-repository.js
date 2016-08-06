@@ -3,16 +3,44 @@
 const AWS = require("aws-sdk");
 const Promise = require('bluebird');
 const _ = require('underscore');
-const IdeaPrePostProcessor = require('../services/idea-pre-post-processor');
 
+const IdeaPrePostProcessor = require('../services/idea-pre-post-processor');
 const ideaPrePostProcessor = new IdeaPrePostProcessor();
+
+const adminRepository = require('./admin-repository');
+
 const tableName = "Ideas";
 
 class IdeaRepository {
 
     constructor() {
         this.ideaPrePostProcessor = ideaPrePostProcessor;
+        this.adminRepository = adminRepository;
         this.tableName = tableName;
+    }
+
+    CanModifyIdea(idea, user) {
+        var me = this;
+        return new Promise(function (resolve, reject) {
+            if (me.adminRepository.IsUserAdmin(user.username)) {
+                resolve(true);
+            } else {
+                resolve(me.IsUserOwnerOfIdea(idea, user));
+            }
+        });
+    }
+
+    IsUserOwnerOfIdea(idea, user) {
+        return new Promise((resolve, reject) => {
+            if (typeof idea.user === "undefined") {
+                return this.GetIdea(idea.id, user)
+                    .then((idea) => {
+                        resolve(idea.user.id === user.id);
+                    });
+            } else {
+                resolve(idea.user.id === user.id);
+            }
+        });
     }
 
     GetAllIdeas(user) {
@@ -28,10 +56,10 @@ class IdeaRepository {
                 data.Items.forEach(idea => {
                     items.push(
                         ideaPrePostProcessor.PostProcess(idea, user)
-                        );
+                    );
                 });
 
-                return items;
+                return _.sortBy(items, (item) => -1 * item.likeCount);
             });
     }
 
@@ -51,12 +79,12 @@ class IdeaRepository {
             })
     }
 
-    UpsertIdea(idea, user) {
+    InsertIdea(idea, user) {
         var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
         idea = ideaPrePostProcessor.PreProcess(idea);
 
-        if (typeof user !== "undefined"){
-            // Mark the current user as the owner of the idea
+        if (!this.adminRepository.IsUserAdmin(user.username)) {
+            // Enforce the current user as the owner of the idea
             idea.user = {
                 login: user.username,
                 id: user.id,
@@ -70,76 +98,101 @@ class IdeaRepository {
             Item: idea
         };
 
+        return docClient.putAsync(params).then(data => { return data; });
+    }
+
+    UpsertIdea(idea, user) {
+        var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+        idea = ideaPrePostProcessor.PreProcess(idea);
+
+        var params = {
+            TableName: tableName,
+            Item: idea
+        };
+
         return docClient.putAsync(params)
-            .then(data => {
-                return data;
-            });
+            .then(data => { return data; });
     }
 
     EditTitle(idea, user) {
         var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
         idea = ideaPrePostProcessor.PreProcess(idea);
 
-        var params = {
-            TableName: tableName,
-            Key: {
-                id: idea.id
-            },
-            UpdateExpression: "set title = :t",
-            ExpressionAttributeValues: {
-                ":t": idea.title
-            },
-            ReturnValues: "UPDATED_NEW"
-        };
+        return this.CanModifyIdea(idea, user)
+            .then(canModify => {
+                if (!canModify) {
+                    return Promise.reject({ message: "Action is not authorized." })
+                }
 
-        return docClient.updateAsync(params)
-            .then(data => {
-                return data;
+                var params = {
+                    TableName: tableName,
+                    Key: {
+                        id: idea.id
+                    },
+                    UpdateExpression: "set title = :t",
+                    ExpressionAttributeValues: {
+                        ":t": idea.title
+                    },
+                    ReturnValues: "UPDATED_NEW"
+                };
+
+                return docClient.updateAsync(params)
             })
+            .then(data => { return data; });
     }
 
     EditOverview(idea, user) {
         var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
         idea = ideaPrePostProcessor.PreProcess(idea);
 
-        var params = {
-            TableName: tableName,
-            Key: {
-                id: idea.id
-            },
-            UpdateExpression: "set overview = :o",
-            ExpressionAttributeValues: {
-                ":o": idea.overview
-            },
-            ReturnValues: "UPDATED_NEW"
-        };
+        return this.CanModifyIdea(idea, user)
+            .then(canModify => {
+                if (!canModify) {
+                    return Promise.reject({ message: "Action is not authorized." })
+                }
 
-        return docClient.updateAsync(params)
-            .then(data => {
-                return data;
+                var params = {
+                    TableName: tableName,
+                    Key: {
+                        id: idea.id
+                    },
+                    UpdateExpression: "set overview = :o",
+                    ExpressionAttributeValues: {
+                        ":o": idea.overview
+                    },
+                    ReturnValues: "UPDATED_NEW"
+                };
+
+                return docClient.updateAsync(params);
             })
+            .then(data => { return data; });
     }
 
     EditDescription(idea, user) {
         var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
         idea = ideaPrePostProcessor.PreProcess(idea);
 
-        var params = {
-            TableName: tableName,
-            Key: {
-                id: idea.id
-            },
-            UpdateExpression: "set description = :d",
-            ExpressionAttributeValues: {
-                ":d": idea.description
-            },
-            ReturnValues: "UPDATED_NEW"
-        };
+        return this.CanModifyIdea(idea, user)
+            .then(canModify => {
+                if (!canModify) {
+                    return Promise.reject({ message: "Action is not authorized." })
+                }
 
-        return docClient.updateAsync(params)
-            .then(data => {
-                return data;
+                var params = {
+                    TableName: tableName,
+                    Key: {
+                        id: idea.id
+                    },
+                    UpdateExpression: "set description = :d",
+                    ExpressionAttributeValues: {
+                        ":d": idea.description
+                    },
+                    ReturnValues: "UPDATED_NEW"
+                };
+
+                return docClient.updateAsync(params);
             })
+            .then(data => { return data; });
     }
 
     LikeIdea(ideaId, user) {
@@ -153,7 +206,7 @@ class IdeaRepository {
                 }
                 return idea;
             }).then(idea => {
-                return this.UpsertIdea(idea);
+                return this.UpsertIdea(idea, user);
             });
     }
 
@@ -174,7 +227,7 @@ class IdeaRepository {
                 }
                 return idea;
             }).then(idea => {
-                return this.UpsertIdea(idea);
+                return this.UpsertIdea(idea, user);
             });
     }
 
@@ -187,16 +240,16 @@ class IdeaRepository {
                 }
                 return idea;
             }).then(idea => {
-                return this.UpsertIdea(idea);
+                return this.UpsertIdea(idea, user);
             });
     }
 
-    GetIdeasThatUserAlreadyJoined(user){
+    GetIdeasThatUserAlreadyJoined(user) {
         var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
 
         var params = {
             TableName: this.tableName,
-            ProjectionExpression:"id",
+            ProjectionExpression: "id",
             FilterExpression: "contains(joinedList, :userId)",
             ExpressionAttributeValues: {
                 ":userId": user.id
@@ -204,10 +257,10 @@ class IdeaRepository {
         };
 
         return docClient.scanAsync(params)
-            .then(data => { 
-                return data.Items; 
+            .then(data => {
+                return data.Items;
             });
-        };
+    };
 }
 
 module.exports = IdeaRepository;
