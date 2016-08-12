@@ -59,7 +59,7 @@ class IdeaRepository {
                     );
                 });
 
-                return _.sortBy(items, (item) => -1 * item.likeCount);
+                return _.sortBy(items, (item) => ((-1 * item.likeCount) - (-2 * item.teamCount)));
             });
     }
 
