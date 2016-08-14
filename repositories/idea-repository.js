@@ -3,6 +3,7 @@
 const AWS = require("aws-sdk");
 const Promise = require('bluebird');
 const _ = require('underscore');
+const nconf = require("nconf");
 
 const IdeaPrePostProcessor = require('../services/idea-pre-post-processor');
 const ideaPrePostProcessor = new IdeaPrePostProcessor();
@@ -10,6 +11,8 @@ const ideaPrePostProcessor = new IdeaPrePostProcessor();
 const adminRepository = require('./admin-repository');
 
 const tableName = "Ideas";
+
+var businessRules = nconf.get("BusinessRules");
 
 class IdeaRepository {
 
@@ -215,8 +218,8 @@ class IdeaRepository {
         return this.GetIdea(ideaId, user)
             .then(idea => {
                 currentIdea = idea; // save the idea in clojure for later use
-                if (idea.joinedList.length >= 5) {
-                    return Promise.reject("This project already has 5 team members." +
+                if (idea.joinedList.length >= businessRules.MaxTeamSize) {
+                    return Promise.reject(`This project already has ${businessRules.MaxTeamSize} team members. ` +
                         "Please select a different project.");
                 }
             })
