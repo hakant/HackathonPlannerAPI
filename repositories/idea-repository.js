@@ -3,6 +3,7 @@
 const AWS = require("aws-sdk");
 const Promise = require('bluebird');
 const _ = require('underscore');
+const nconf = require("nconf");
 
 const IdeaPrePostProcessor = require('../services/idea-pre-post-processor');
 const ideaPrePostProcessor = new IdeaPrePostProcessor();
@@ -10,6 +11,8 @@ const ideaPrePostProcessor = new IdeaPrePostProcessor();
 const adminRepository = require('./admin-repository');
 
 const tableName = "Ideas";
+
+var businessRules = nconf.get("BusinessRules");
 
 class IdeaRepository {
 
@@ -211,22 +214,30 @@ class IdeaRepository {
     }
 
     JoinIdea(ideaId, user) {
-        return this.GetIdeasThatUserAlreadyJoined(user)
+        let currentIdea;
+        return this.GetIdea(ideaId, user)
+            .then(idea => {
+                currentIdea = idea; // save the idea in clojure for later use
+                if (idea.joinedList.length >= businessRules.MaxTeamSize) {
+                    return Promise.reject(`This project already has ${businessRules.MaxTeamSize} team members. ` +
+                        "Please select a different project.");
+                }
+            })
+            .then(() => { return this.GetIdeasThatUserAlreadyJoined(user); })
             .then(ideas => {
                 return Promise.all(ideas.map((idea) => {
                     return this.UnJoinIdea(idea.id, user);
                 }));
             })
-            .then(() => {
-                return this.GetIdea(ideaId, user);
-            })
+            .then(() => { return currentIdea; })
             .then(idea => {
                 var index = _.indexOf(idea.joinedList, user.id);
                 if (index < 0) {
                     idea.joinedList.push(user.id);
                 }
                 return idea;
-            }).then(idea => {
+            })
+            .then(idea => {
                 return this.UpsertIdea(idea, user);
             });
     }

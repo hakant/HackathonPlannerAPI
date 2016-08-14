@@ -14,5 +14,10 @@
     "Organization": {
         "Id": 11661932,
         "Name": "NIPOSoftwareBV"
+    },
+    "BusinessRules": {
+        "MaxTeamSize": 5,
+        "AllowJoins": true,
+        "AllowLikes": true
     }
 }
