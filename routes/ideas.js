@@ -2,19 +2,56 @@
 
 const express = require('express');
 const router = express.Router();
+const nconf = require("nconf");
 
 const IdeaRepository = require("../repositories/idea-repository")
 let ideaRepository = new IdeaRepository();
+
 const Helpers = require('../utilities/helpers');
 let helpers = new Helpers();
+
 const IdeaPrePostProcessor = require('../services/idea-pre-post-processor');
 let ideaPrePostProcessor = new IdeaPrePostProcessor();
+
+let businessRules = nconf.get("BusinessRules");
+
+router.use(function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  } else {
+    res.status(401).send('Unauthorized');
+  }
+});
+
+router.post("/*join", function isJoinChangeAllowed(req, res, next) {
+  if (businessRules.AllowJoins){
+    next();
+  } else{
+    res.status(405).send('Team composition change is not allowed anymore');
+  }
+});
+
+router.post("/like", function isLikeChangeAllowed(req, res, next) {
+  if (businessRules.AllowLikes){
+    next();
+  } else{
+    res.status(405).send('Liking or unliking ideas are not allowed anymore');
+  }
+});
+
+router.post("/add|edit-title|edit-overview|edit-description", function isAddEditAllowed(req, res, next) {
+  if (businessRules.AllowAddEdit){
+    next();
+  } else{
+    res.status(405).send('Adding or editing ideas are not allowed anymore');
+  }
+});
 
 router.get('/', function (req, res, next) {
   ideaRepository.GetAllIdeas(req.user)
     .then(ideas => res.json(ideas))
     .catch(err => {
-      let errorMessage = `Unable to query. Error: ${ JSON.stringify(err) }`;
+      let errorMessage = `Unable to query. Error: ${JSON.stringify(err)}`;
       res.status(500).send(errorMessage);
     });
 });
@@ -31,15 +68,15 @@ router.post("/add", function (req, res, next) {
 
 router.post("/edit-title", function (req, res, next) {
   ideaRepository.EditTitle(req.body, req.user)
-  .then(data => {
-    console.log("Updated title:", JSON.stringify(data));
-    res.sendStatus(200);
-  })
-  .catch(err => {
-    let errorMessage = `Unable to update item. Error JSON: ${JSON.stringify(err)}`; 
-    console.error(errorMessage);
-    res.status(500).send(errorMessage);
-  });
+    .then(data => {
+      console.log("Updated title:", JSON.stringify(data));
+      res.sendStatus(200);
+    })
+    .catch(err => {
+      let errorMessage = `Unable to update item. Error JSON: ${JSON.stringify(err)}`;
+      console.error(errorMessage);
+      res.status(500).send(errorMessage);
+    });
 });
 
 router.post("/edit-overview", function (req, res, next) {
