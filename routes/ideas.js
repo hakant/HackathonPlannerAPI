@@ -10,6 +10,8 @@ let ideaRepository = new IdeaRepository();
 const Helpers = require('../utilities/helpers');
 let helpers = new Helpers();
 
+const adminRepository = require('../repositories/admin-repository');
+
 const IdeaPrePostProcessor = require('../services/idea-pre-post-processor');
 let ideaPrePostProcessor = new IdeaPrePostProcessor();
 
@@ -40,7 +42,7 @@ router.post("/like", function isLikeChangeAllowed(req, res, next) {
 });
 
 router.post("/add|edit-title|edit-overview|edit-description", function isAddEditAllowed(req, res, next) {
-  if (businessRules.AllowAddEdit){
+  if (adminRepository.IsUserAdmin(req.user.username) || businessRules.AllowAddEdit){
     next();
   } else{
     res.status(405).send('Adding or editing ideas are not allowed anymore');
