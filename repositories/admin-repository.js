@@ -1,7 +1,10 @@
 "use strict";
 
 const _ = require('underscore');
-const admins = ['joukevandermaas', 'DorisNipo', 'rutger-de-jong', 'hakant'];
+const nconf = require("nconf");
+
+const businessRules = nconf.get("BusinessRules");
+let admins = businessRules.Administrators; 
 
 class AdminRepository {
     IsUserAdmin(username){
