@@ -49,13 +49,7 @@ githubAuth.Setup();
 
 app.use('/', routes);
 app.use('/auth', auth);
-app.use('/ideas', function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) { 
-        return next(); 
-    } else {
-      res.status(401).send('Unauthorized');
-    }
-}, ideas);
+app.use('/ideas', ideas);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

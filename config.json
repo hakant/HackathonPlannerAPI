@@ -18,6 +18,7 @@
     "BusinessRules": {
         "MaxTeamSize": 5,
         "AllowJoins": true,
-        "AllowLikes": true
+        "AllowLikes": true,
+        "AllowAddEdit": true
     }
 }
