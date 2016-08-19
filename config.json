@@ -16,9 +16,10 @@
         "Name": "NIPOSoftwareBV"
     },
     "BusinessRules": {
+        "Administrators": ["joukevandermaas", "DorisNipo", "rutger-de-jong", "hakant"],
         "MaxTeamSize": 5,
         "AllowJoins": true,
         "AllowLikes": true,
-        "AllowAddEdit": true
+        "AllowAddEdit": false
     }
 }
