@@ -201,11 +201,15 @@ class IdeaRepository {
     LikeIdea(ideaId, user) {
         return this.GetIdea(ideaId, user)
             .then(idea => {
-                var index = _.indexOf(idea.likedList, user.id);
+                var index = _.findIndex(idea.likedList, item => item.id === user.id);
                 if (index > -1) {
                     idea.likedList.splice(index, 1);
                 } else {
-                    idea.likedList.push(user.id);
+                    idea.likedList.push({
+                        id: user.id,
+                        name: user.displayName,
+                        login: user.username
+                    });
                 }
                 return idea;
             }).then(idea => {
@@ -231,9 +235,13 @@ class IdeaRepository {
             })
             .then(() => { return currentIdea; })
             .then(idea => {
-                var index = _.indexOf(idea.joinedList, user.id);
+                var index = _.findIndex(idea.joinedList, item => item.id === user.id);
                 if (index < 0) {
-                    idea.joinedList.push(user.id);
+                    idea.joinedList.push({
+                        id: user.id,
+                        name: user.displayName,
+                        login: user.username
+                    });
                 }
                 return idea;
             })
@@ -245,7 +253,7 @@ class IdeaRepository {
     UnJoinIdea(ideaId, user) {
         return this.GetIdea(ideaId, user)
             .then(idea => {
-                var index = _.indexOf(idea.joinedList, user.id);
+                var index = _.findIndex(idea.joinedList, item => item.id === user.id);
                 if (index > -1) {
                     idea.joinedList.splice(index, 1);
                 }
@@ -258,18 +266,22 @@ class IdeaRepository {
     GetIdeasThatUserAlreadyJoined(user) {
         var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
 
+        // TODO: Is there a better way of filtering this already in the database?
         var params = {
             TableName: this.tableName,
-            ProjectionExpression: "id",
-            FilterExpression: "contains(joinedList, :userId)",
-            ExpressionAttributeValues: {
-                ":userId": user.id
-            }
+            ProjectionExpression: "id, joinedList",
         };
-
+        
+        let items = [];
         return docClient.scanAsync(params)
             .then(data => {
-                return data.Items;
+                data.Items.forEach(item => {
+                    if (_.some(item.joinedList, i => i.id === user.id)){
+                        items.push(item);
+                    }
+                });
+
+                return items;
             });
     };
 }
