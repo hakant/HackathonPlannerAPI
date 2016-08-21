@@ -18,8 +18,8 @@ class IdeaPrePostProcessor {
     }
 
     PostProcess(object, user){
-        object.liked = _.contains(object.likedList, user.id);
-        object.joined = _.contains(object.joinedList, user.id);
+        object.liked = _.some(object.likedList, item => item.id === user.id);
+        object.joined = _.some(object.joinedList, item => item.id === user.id);
         object.likeCount = object.likedList.length;
         object.teamCount = object.joinedList.length;
 
