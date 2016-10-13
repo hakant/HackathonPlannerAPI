@@ -8,7 +8,8 @@ const nconf = require("nconf");
 const IdeaPrePostProcessor = require('../services/idea-pre-post-processor');
 const ideaPrePostProcessor = new IdeaPrePostProcessor();
 
-const adminRepository = require('./admin-repository');
+const AdminRepository_1 = require('./AdminRepository');
+const adminRepository = new AdminRepository_1.default();
 
 const tableName = "Ideas";
 

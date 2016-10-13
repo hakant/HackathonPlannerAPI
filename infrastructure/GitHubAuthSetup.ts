@@ -2,10 +2,14 @@
 
 const passport = require('passport');
 const GitHubStrategy = require('passport-github2').Strategy;
-const https = require('https');
-const _ = require('underscore');
-const nconf = require("nconf");
-const AdminRepository = require('../repositories/AdminRepository');
+
+// const https = require('https');
+import * as https from 'https';
+// const _ = require('underscore');
+import * as _ from 'underscore';
+// const nconf = require("nconf");
+import * as nconf from 'nconf';
+import AdminRepository from '../repositories/AdminRepository';
 const adminRepository = new AdminRepository();
 
 var config = nconf.get("GitHub_Auth");
@@ -17,8 +21,8 @@ var HOST_URL = config.HostUrl;
 
 var organization = nconf.get("Organization");
 
-
-class GitHubAuthSetup {
+export default class GitHubAuthSetup {
+    private _app : any;
 
     constructor(app) {
         this._app = app;
@@ -66,7 +70,7 @@ class GitHubAuthSetup {
                             body += d 
                         });
                         response.on('end', () => {
-                            var orgs = JSON.parse(body);
+                            var orgs : any[] = JSON.parse(body);
                             if (adminRepository.IsUserAdmin(profile.username)){
                                 return done(null, profile);
                             }
@@ -86,5 +90,3 @@ class GitHubAuthSetup {
         this._app.use(passport.session());
     }
 }
-
-module.exports = GitHubAuthSetup;

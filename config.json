@@ -18,8 +18,8 @@
     "BusinessRules": {
         "Administrators": ["joukevandermaas", "DorisNipo", "rutger-de-jong", "hakant"],
         "MaxTeamSize": 5,
-        "AllowJoins": false,
-        "AllowLikes": false,
-        "AllowAddEdit": false
+        "AllowJoins": true,
+        "AllowLikes": true,
+        "AllowAddEdit": true
     }
 }

@@ -17,8 +17,8 @@ var auth = require('./routes/auth');
 var routes = require('./routes/index');
 var ideas = require('./routes/ideas');
 
-var GithubAuthSetup = require("./infrastructure/github-auth-setup");
-var githubAuth = new GithubAuthSetup(app);
+var GitHubAuthSetup = require("./infrastructure/GitHubAuthSetup");
+var githubAuth = new GitHubAuthSetup.default(app);
 
 var databaseSetup = require("./infrastructure/database-setup");
 databaseSetup.SetupNoSqlTables();

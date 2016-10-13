@@ -10,7 +10,8 @@ let ideaRepository = new IdeaRepository();
 const Helpers = require('../utilities/helpers');
 let helpers = new Helpers();
 
-const adminRepository = require('../repositories/admin-repository');
+const AdminRepository = require('../repositories/AdminRepository');
+let adminRepository = new AdminRepository.default();
 
 const IdeaPrePostProcessor = require('../services/idea-pre-post-processor');
 let ideaPrePostProcessor = new IdeaPrePostProcessor();
