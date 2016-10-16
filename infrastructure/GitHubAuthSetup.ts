@@ -1,14 +1,13 @@
 "use strict";
 
-const passport = require('passport');
-const GitHubStrategy = require('passport-github2').Strategy;
+import * as passport from 'passport';
+import * as PassportGitHub from 'passport-github2';
+const GitHubStrategy = PassportGitHub.Strategy;
 
-// const https = require('https');
 import * as https from 'https';
-// const _ = require('underscore');
 import * as _ from 'underscore';
-// const nconf = require("nconf");
 import * as nconf from 'nconf';
+
 import AdminRepository from '../repositories/AdminRepository';
 const adminRepository = new AdminRepository();
 

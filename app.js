@@ -20,7 +20,8 @@ var ideas = require('./routes/ideas');
 var GitHubAuthSetup = require("./infrastructure/GitHubAuthSetup");
 var githubAuth = new GitHubAuthSetup.default(app);
 
-var databaseSetup = require("./infrastructure/database-setup");
+var DatabaseSetup = require("./infrastructure/DatabaseSetup");
+var databaseSetup = new DatabaseSetup.default();
 databaseSetup.SetupNoSqlTables();
 
 // view engine setup
