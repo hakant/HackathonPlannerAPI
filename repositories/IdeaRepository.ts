@@ -1,21 +1,25 @@
 "use strict";
 
-const AWS = require("aws-sdk");
-const Promise = require('bluebird');
-const _ = require('underscore');
-const nconf = require("nconf");
+import * as AWS from 'aws-sdk';
+import * as Bluebird from 'bluebird';
+import * as _ from 'underscore';
+import * as nconf from 'nconf';
 
-const IdeaPrePostProcessor = require('../services/idea-pre-post-processor');
+import IdeaPrePostProcessor from '../services/IdeaPrePostProcessor';
 const ideaPrePostProcessor = new IdeaPrePostProcessor();
 
-const AdminRepository_1 = require('./AdminRepository');
-const adminRepository = new AdminRepository_1.default();
+import AdminRepository from './AdminRepository';
+const adminRepository = new AdminRepository();
 
 const tableName = "Ideas";
 
 var businessRules = nconf.get("BusinessRules");
 
-class IdeaRepository {
+export default class IdeaRepository implements IIdeaRepository {
+
+    ideaPrePostProcessor : any;
+    adminRepository : IAdminRepository;
+    tableName : string;
 
     constructor() {
         this.ideaPrePostProcessor = ideaPrePostProcessor;
@@ -23,7 +27,7 @@ class IdeaRepository {
         this.tableName = tableName;
     }
 
-    CanModifyIdea(idea, user) {
+    CanModifyIdea(idea: IIdea, user: ILoggedOnUser): Promise<boolean> {
         var me = this;
         return new Promise(function (resolve, reject) {
             if (me.adminRepository.IsUserAdmin(user.username)) {
@@ -34,7 +38,7 @@ class IdeaRepository {
         });
     }
 
-    IsUserOwnerOfIdea(idea, user) {
+    IsUserOwnerOfIdea(idea: IIdea, user: ILoggedOnUser): Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (typeof idea.user === "undefined") {
                 return this.GetIdea(idea.id, user)
@@ -47,8 +51,8 @@ class IdeaRepository {
         });
     }
 
-    GetAllIdeas(user) {
-        var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+    GetAllIdeas(user: ILoggedOnUser): Promise<Array<IIdea>> {
+        var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient()) as AWS.DynamoDB.DocumentAsyncClient;
 
         var params = {
             TableName: this.tableName
@@ -67,8 +71,8 @@ class IdeaRepository {
             });
     }
 
-    GetIdea(ideaId, user) {
-        var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+    GetIdea(ideaId: string, user: ILoggedOnUser): Promise<IIdea> {
+        var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient()) as AWS.DynamoDB.DocumentAsyncClient;
 
         var params = {
             TableName: this.tableName,
@@ -83,8 +87,8 @@ class IdeaRepository {
             })
     }
 
-    InsertIdea(idea, user) {
-        var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+    InsertIdea(idea: IIdea, user: ILoggedOnUser): Promise<any> {
+        var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient()) as AWS.DynamoDB.DocumentAsyncClient;
         idea = ideaPrePostProcessor.PreProcess(idea);
 
         if (!this.adminRepository.IsUserAdmin(user.username)) {
@@ -105,8 +109,8 @@ class IdeaRepository {
         return docClient.putAsync(params).then(data => { return data; });
     }
 
-    UpsertIdea(idea, user) {
-        var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+    UpsertIdea(idea: IIdea, user: ILoggedOnUser): Promise<any> {
+        var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient()) as AWS.DynamoDB.DocumentAsyncClient;
         idea = ideaPrePostProcessor.PreProcess(idea);
 
         var params = {
@@ -118,8 +122,8 @@ class IdeaRepository {
             .then(data => { return data; });
     }
 
-    EditTitle(idea, user) {
-        var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+    EditTitle(idea: IIdea, user: ILoggedOnUser): Promise<any> {
+        var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient()) as AWS.DynamoDB.DocumentAsyncClient;
         idea = ideaPrePostProcessor.PreProcess(idea);
 
         return this.CanModifyIdea(idea, user)
@@ -128,7 +132,7 @@ class IdeaRepository {
                     return Promise.reject({ message: "Action is not authorized." })
                 }
 
-                var params = {
+                var params : AWS.DynamoDB.UpdateParam = {
                     TableName: tableName,
                     Key: {
                         id: idea.id
@@ -137,7 +141,8 @@ class IdeaRepository {
                     ExpressionAttributeValues: {
                         ":t": idea.title
                     },
-                    ReturnValues: "UPDATED_NEW"
+                    ReturnValues: "UPDATED_NEW",
+                    AttributeUpdates : undefined
                 };
 
                 return docClient.updateAsync(params)
@@ -145,8 +150,8 @@ class IdeaRepository {
             .then(data => { return data; });
     }
 
-    EditOverview(idea, user) {
-        var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+    EditOverview(idea: IIdea, user: ILoggedOnUser): Promise<any> {
+        var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient()) as AWS.DynamoDB.DocumentAsyncClient; 
         idea = ideaPrePostProcessor.PreProcess(idea);
 
         return this.CanModifyIdea(idea, user)
@@ -155,7 +160,7 @@ class IdeaRepository {
                     return Promise.reject({ message: "Action is not authorized." })
                 }
 
-                var params = {
+                var params : AWS.DynamoDB.UpdateParam = {
                     TableName: tableName,
                     Key: {
                         id: idea.id
@@ -164,7 +169,8 @@ class IdeaRepository {
                     ExpressionAttributeValues: {
                         ":o": idea.overview
                     },
-                    ReturnValues: "UPDATED_NEW"
+                    ReturnValues: "UPDATED_NEW",
+                    AttributeUpdates : undefined
                 };
 
                 return docClient.updateAsync(params);
@@ -172,8 +178,8 @@ class IdeaRepository {
             .then(data => { return data; });
     }
 
-    EditDescription(idea, user) {
-        var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+    EditDescription(idea: IIdea, user: ILoggedOnUser): Promise<any> {
+        var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient()) as AWS.DynamoDB.DocumentAsyncClient;
         idea = ideaPrePostProcessor.PreProcess(idea);
 
         return this.CanModifyIdea(idea, user)
@@ -182,7 +188,7 @@ class IdeaRepository {
                     return Promise.reject({ message: "Action is not authorized." })
                 }
 
-                var params = {
+                var params : AWS.DynamoDB.UpdateParam = {
                     TableName: tableName,
                     Key: {
                         id: idea.id
@@ -191,7 +197,8 @@ class IdeaRepository {
                     ExpressionAttributeValues: {
                         ":d": idea.description
                     },
-                    ReturnValues: "UPDATED_NEW"
+                    ReturnValues: "UPDATED_NEW",
+                    AttributeUpdates : undefined
                 };
 
                 return docClient.updateAsync(params);
@@ -199,7 +206,7 @@ class IdeaRepository {
             .then(data => { return data; });
     }
 
-    LikeIdea(ideaId, user) {
+    LikeIdea(ideaId: string, user: ILoggedOnUser): Promise<any> {
         return this.GetIdea(ideaId, user)
             .then(idea => {
                 var index = _.findIndex(idea.likedList, item => item.id === user.id);
@@ -218,7 +225,7 @@ class IdeaRepository {
             });
     }
 
-    JoinIdea(ideaId, user) {
+    JoinIdea(ideaId: string, user: ILoggedOnUser): Promise<any> {
         let currentIdea;
         return this.GetIdea(ideaId, user)
             .then(idea => {
@@ -251,7 +258,7 @@ class IdeaRepository {
             });
     }
 
-    UnJoinIdea(ideaId, user) {
+    UnJoinIdea(ideaId: string, user: ILoggedOnUser): Promise<any> {
         return this.GetIdea(ideaId, user)
             .then(idea => {
                 var index = _.findIndex(idea.joinedList, item => item.id === user.id);
@@ -264,8 +271,8 @@ class IdeaRepository {
             });
     }
 
-    GetIdeasThatUserAlreadyJoined(user) {
-        var docClient = Promise.promisifyAll(new AWS.DynamoDB.DocumentClient());
+    GetIdeasThatUserAlreadyJoined(user: ILoggedOnUser): Promise<Array<IIdeaEntity>> {
+        var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient()) as AWS.DynamoDB.DocumentAsyncClient;
 
         // TODO: Is there a better way of filtering this already in the database?
         var params = {
@@ -286,5 +293,3 @@ class IdeaRepository {
             });
     };
 }
-
-module.exports = IdeaRepository;

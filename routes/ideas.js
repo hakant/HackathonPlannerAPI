@@ -4,17 +4,17 @@ const express = require('express');
 const router = express.Router();
 const nconf = require("nconf");
 
-const IdeaRepository = require("../repositories/idea-repository")
-let ideaRepository = new IdeaRepository();
+const IdeaRepository = require("../repositories/IdeaRepository")
+let ideaRepository = new IdeaRepository.default();
 
-const Helpers = require('../utilities/helpers');
-let helpers = new Helpers();
+const Helpers = require('../utilities/Helpers');
+let helpers = new Helpers.default();
 
 const AdminRepository = require('../repositories/AdminRepository');
 let adminRepository = new AdminRepository.default();
 
-const IdeaPrePostProcessor = require('../services/idea-pre-post-processor');
-let ideaPrePostProcessor = new IdeaPrePostProcessor();
+const IdeaPrePostProcessor = require('../services/IdeaPrePostProcessor');
+let ideaPrePostProcessor = new IdeaPrePostProcessor.default();
 
 let businessRules = nconf.get("BusinessRules");
 

@@ -1,5 +1,5 @@
 "use strict";
-const Promise = require("bluebird");
+const Bluebird = require("bluebird");
 const AWS = require("aws-sdk");
 const nconf = require("nconf");
 class DatabaseSetup {
@@ -9,8 +9,7 @@ class DatabaseSetup {
             region: config.Region,
             endpoint: config.Endpoint
         });
-        var dynamodb = Promise.promisifyAll(new AWS.DynamoDB());
-        ;
+        var dynamodb = Bluebird.promisifyAll(new AWS.DynamoDB());
         dynamodb.describeTableAsync({ TableName: "Ideas" })
             .then(function (data) {
             console.info("Table exists. Table description in JSON: ", JSON.stringify(data, null, 2));

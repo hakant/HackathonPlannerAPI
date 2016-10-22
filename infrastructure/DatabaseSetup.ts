@@ -1,6 +1,6 @@
 "use strict";
 
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 import * as AWS from 'aws-sdk';
 import * as nconf from 'nconf';
 
@@ -13,7 +13,7 @@ export default class DatabaseSetup {
             endpoint: config.Endpoint
         });
 
-        var dynamodb = Promise.promisifyAll(new AWS.DynamoDB()) as AWS.DynamoDBAsyncClient;;
+        var dynamodb = Bluebird.promisifyAll(new AWS.DynamoDB()) as AWS.DynamoDBAsync;
 
         dynamodb.describeTableAsync({ TableName: "Ideas" })
             .then(function (data) {
