@@ -15,15 +15,17 @@ export default class IdeaPrePostProcessor {
     }
 
     PreProcess(idea: IIdea): IIdeaEntity {
-        var sanitizedObject = mask(idea, this._ideaSkeleton);
+        var sanitizedObject = mask(idea, this._ideaSkeleton) as IIdeaEntity;
         return helpers.ReplacePropertyValuesOf(sanitizedObject, "", null);      // replace all empty strings with nulls
     }
 
-    PostProcess(idea: IIdea, user: ILoggedOnUser) : IIdea {
-        idea.liked = _.some(idea.likedList, item => item.id === user.id);
-        idea.joined = _.some(idea.joinedList, item => item.id === user.id);
-        idea.likeCount = idea.likedList.length;
-        idea.teamCount = idea.joinedList.length;
+    PostProcess(idea: IIdeaEntity, user: ILoggedOnUser) : IIdea {
+        var extendedIdea = idea as IIdea;   
+
+        extendedIdea.liked = _.some(idea.likedList, item => item.id === user.id);
+        extendedIdea.joined = _.some(idea.joinedList, item => item.id === user.id);
+        extendedIdea.likeCount = idea.likedList.length;
+        extendedIdea.teamCount = idea.joinedList.length;
 
         return helpers.ReplacePropertyValuesOf(idea, null, "");
     }

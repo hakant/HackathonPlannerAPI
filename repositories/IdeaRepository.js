@@ -68,10 +68,10 @@ class IdeaRepository {
     }
     InsertIdea(idea, user) {
         var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient());
-        idea = ideaPrePostProcessor.PreProcess(idea);
+        var ideaEntity = ideaPrePostProcessor.PreProcess(idea);
         if (!this.adminRepository.IsUserAdmin(user.username)) {
             // Enforce the current user as the owner of the idea
-            idea.user = {
+            ideaEntity.user = {
                 login: user.username,
                 id: user.id,
                 avatar_url: user._json.avatar_url,
@@ -80,24 +80,24 @@ class IdeaRepository {
         }
         var params = {
             TableName: tableName,
-            Item: idea
+            Item: ideaEntity
         };
         return docClient.putAsync(params).then(data => { return data; });
     }
     UpsertIdea(idea, user) {
         var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient());
-        idea = ideaPrePostProcessor.PreProcess(idea);
+        var ideaEntity = ideaPrePostProcessor.PreProcess(idea);
         var params = {
             TableName: tableName,
-            Item: idea
+            Item: ideaEntity
         };
         return docClient.putAsync(params)
             .then(data => { return data; });
     }
     EditTitle(idea, user) {
         var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient());
-        idea = ideaPrePostProcessor.PreProcess(idea);
-        return this.CanModifyIdea(idea, user)
+        var ideaEntity = ideaPrePostProcessor.PreProcess(idea);
+        return this.CanModifyIdea(ideaEntity, user)
             .then(canModify => {
             if (!canModify) {
                 return Promise.reject({ message: "Action is not authorized." });
@@ -105,11 +105,11 @@ class IdeaRepository {
             var params = {
                 TableName: tableName,
                 Key: {
-                    id: idea.id
+                    id: ideaEntity.id
                 },
                 UpdateExpression: "set title = :t",
                 ExpressionAttributeValues: {
-                    ":t": idea.title
+                    ":t": ideaEntity.title
                 },
                 ReturnValues: "UPDATED_NEW",
                 AttributeUpdates: undefined
@@ -120,8 +120,8 @@ class IdeaRepository {
     }
     EditOverview(idea, user) {
         var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient());
-        idea = ideaPrePostProcessor.PreProcess(idea);
-        return this.CanModifyIdea(idea, user)
+        var ideaEntity = ideaPrePostProcessor.PreProcess(idea);
+        return this.CanModifyIdea(ideaEntity, user)
             .then(canModify => {
             if (!canModify) {
                 return Promise.reject({ message: "Action is not authorized." });
@@ -129,11 +129,11 @@ class IdeaRepository {
             var params = {
                 TableName: tableName,
                 Key: {
-                    id: idea.id
+                    id: ideaEntity.id
                 },
                 UpdateExpression: "set overview = :o",
                 ExpressionAttributeValues: {
-                    ":o": idea.overview
+                    ":o": ideaEntity.overview
                 },
                 ReturnValues: "UPDATED_NEW",
                 AttributeUpdates: undefined
@@ -144,8 +144,8 @@ class IdeaRepository {
     }
     EditDescription(idea, user) {
         var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient());
-        idea = ideaPrePostProcessor.PreProcess(idea);
-        return this.CanModifyIdea(idea, user)
+        var ideaEntity = ideaPrePostProcessor.PreProcess(idea);
+        return this.CanModifyIdea(ideaEntity, user)
             .then(canModify => {
             if (!canModify) {
                 return Promise.reject({ message: "Action is not authorized." });
@@ -153,11 +153,11 @@ class IdeaRepository {
             var params = {
                 TableName: tableName,
                 Key: {
-                    id: idea.id
+                    id: ideaEntity.id
                 },
                 UpdateExpression: "set description = :d",
                 ExpressionAttributeValues: {
-                    ":d": idea.description
+                    ":d": ideaEntity.description
                 },
                 ReturnValues: "UPDATED_NEW",
                 AttributeUpdates: undefined
@@ -239,7 +239,7 @@ class IdeaRepository {
         let items = [];
         return docClient.scanAsync(params)
             .then(data => {
-            data.Items.forEach(item => {
+            data.Items.forEach((item) => {
                 if (_.some(item.joinedList, i => i.id === user.id)) {
                     items.push(item);
                 }

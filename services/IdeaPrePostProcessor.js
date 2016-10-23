@@ -12,10 +12,11 @@ class IdeaPrePostProcessor {
         return helpers.ReplacePropertyValuesOf(sanitizedObject, "", null); // replace all empty strings with nulls
     }
     PostProcess(idea, user) {
-        idea.liked = _.some(idea.likedList, item => item.id === user.id);
-        idea.joined = _.some(idea.joinedList, item => item.id === user.id);
-        idea.likeCount = idea.likedList.length;
-        idea.teamCount = idea.joinedList.length;
+        var extendedIdea = idea;
+        extendedIdea.liked = _.some(idea.likedList, item => item.id === user.id);
+        extendedIdea.joined = _.some(idea.joinedList, item => item.id === user.id);
+        extendedIdea.likeCount = idea.likedList.length;
+        extendedIdea.teamCount = idea.joinedList.length;
         return helpers.ReplacePropertyValuesOf(idea, null, "");
     }
 }
