@@ -14,10 +14,7 @@ config = nconf.get("HostInfo");
 var HOST_URL = config.HostUrl;
 var organization = nconf.get("Organization");
 class GitHubAuthSetup {
-    constructor(app) {
-        this._app = app;
-    }
-    Setup() {
+    Setup(app) {
         // Passport session setup.
         //   To support persistent login sessions, Passport needs to be able to
         //   serialize users into and deserialize users out of the session.  Typically,
@@ -69,10 +66,10 @@ class GitHubAuthSetup {
                 });
             });
         }));
-        this._app.use(passport.initialize());
-        this._app.use(passport.session());
+        app.use(passport.initialize());
+        app.use(passport.session());
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = GitHubAuthSetup;
+exports.default = new GitHubAuthSetup();
 //# sourceMappingURL=GitHubAuthSetup.js.map

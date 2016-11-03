@@ -38,5 +38,5 @@ class DatabaseSetup {
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = DatabaseSetup;
+exports.default = new DatabaseSetup();
 //# sourceMappingURL=DatabaseSetup.js.map

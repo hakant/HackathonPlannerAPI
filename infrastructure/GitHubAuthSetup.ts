@@ -4,6 +4,7 @@ import * as passport from 'passport';
 import * as PassportGitHub from 'passport-github2';
 const GitHubStrategy = PassportGitHub.Strategy;
 
+import * as express from 'express';
 import * as https from 'https';
 import * as _ from 'underscore';
 import * as nconf from 'nconf';
@@ -20,14 +21,9 @@ var HOST_URL = config.HostUrl;
 
 var organization = nconf.get("Organization");
 
-export default class GitHubAuthSetup {
-    private _app : any;
+class GitHubAuthSetup {
 
-    constructor(app) {
-        this._app = app;
-    }
-
-    Setup() {
+    Setup(app: express.Application) {
 
         // Passport session setup.
         //   To support persistent login sessions, Passport needs to be able to
@@ -85,7 +81,9 @@ export default class GitHubAuthSetup {
             }
         ));
 
-        this._app.use(passport.initialize());
-        this._app.use(passport.session());
+        app.use(passport.initialize());
+        app.use(passport.session());
     }
 }
+
+export default new GitHubAuthSetup();

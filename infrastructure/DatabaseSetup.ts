@@ -4,7 +4,7 @@ import * as Bluebird from 'bluebird';
 import * as AWS from 'aws-sdk';
 import * as nconf from 'nconf';
 
-export default class DatabaseSetup {
+class DatabaseSetup {
 
     SetupNoSqlTables() {
         var config = nconf.get("DynamoDb");
@@ -43,4 +43,6 @@ export default class DatabaseSetup {
             });
     }
 }
+
+export default new DatabaseSetup();
 
