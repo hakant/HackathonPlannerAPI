@@ -4,7 +4,8 @@
  * Module dependencies.
  */
 
-var app = require('../app');
+var Server = require('../app');
+var app = new Server.default().app;
 var debug = require('debug')('hackathon-planner-api:server');
 var http = require('http');
 

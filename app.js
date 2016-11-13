@@ -15,9 +15,6 @@ const Auth_1 = require("./routes/Auth");
 const Ideas_1 = require("./routes/Ideas");
 const Index_1 = require("./routes/Index");
 class Server {
-    static bootstrap() {
-        return new Server();
-    }
     constructor() {
         //create expressjs application
         this.app = express();
@@ -27,6 +24,9 @@ class Server {
         this.setupGitHubAuthentication();
         this.configureRoutes();
         this.setupErrorHandling();
+    }
+    static bootstrap() {
+        return new Server();
     }
     configureApp() {
         let host = nconf.get("HostInfo");
@@ -93,6 +93,8 @@ class Server {
         });
     }
 }
-var server = Server.bootstrap();
-server.startListening();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = Server;
+//var server = Server.bootstrap();
+//server.startListening();
 //# sourceMappingURL=app.js.map

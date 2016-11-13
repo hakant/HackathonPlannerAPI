@@ -18,7 +18,7 @@ import authenticationRouteConfigurator from './routes/Auth';
 import ideasRouteConfigurator from './routes/Ideas';
 import indexRouteConfigurator from './routes/Index';
 
-class Server {
+export default class Server {
 
     public app: express.Application;
 
@@ -117,5 +117,5 @@ class Server {
     }
 }
 
-var server = Server.bootstrap();
-server.startListening();
+//var server = Server.bootstrap();
+//server.startListening();
