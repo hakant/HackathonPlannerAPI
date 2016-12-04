@@ -1,6 +1,6 @@
 "use strict";
 
-class Helpers {
+export default class Helpers {
 
     ReplacePropertyValuesOf(object, sourceValue, destinationValue) {
         for (var property in object) {
@@ -18,7 +18,4 @@ class Helpers {
         return object;
     }
 }
-
-
-module.exports = Helpers;
 

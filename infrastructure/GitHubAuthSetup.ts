@@ -1,10 +1,16 @@
 "use strict";
 
-const passport = require('passport');
-const GitHubStrategy = require('passport-github2').Strategy;
-const https = require('https');
-const _ = require('underscore');
-const nconf = require("nconf");
+import * as passport from 'passport';
+import * as PassportGitHub from 'passport-github2';
+const GitHubStrategy = PassportGitHub.Strategy;
+
+import * as express from 'express';
+import * as https from 'https';
+import * as _ from 'underscore';
+import * as nconf from 'nconf';
+
+import AdminRepository from '../repositories/AdminRepository';
+const adminRepository = new AdminRepository();
 
 var config = nconf.get("GitHub_Auth");
 var GITHUB_CLIENT_ID = config.ClientId;
@@ -15,14 +21,9 @@ var HOST_URL = config.HostUrl;
 
 var organization = nconf.get("Organization");
 
-
 class GitHubAuthSetup {
 
-    constructor(app) {
-        this._app = app;
-    }
-
-    Setup() {
+    Setup(app: express.Application) {
 
         // Passport session setup.
         //   To support persistent login sessions, Passport needs to be able to
@@ -53,7 +54,6 @@ class GitHubAuthSetup {
                 process.nextTick(function () {
                     return https.get({
                         host: 'api.github.com',
-                        //path: `/users/${profile.username}/orgs`,
                         path: `/user/orgs`,
                         headers: {
                             "Authorization": `token ${accessToken}`,
@@ -65,7 +65,11 @@ class GitHubAuthSetup {
                             body += d 
                         });
                         response.on('end', () => {
-                            var orgs = JSON.parse(body);
+                            var orgs : any[] = JSON.parse(body);
+                            if (adminRepository.IsUserAdmin(profile.username)){
+                                return done(null, profile);
+                            }
+
                             if (_.some(orgs, (org) => { return org.id === organization.Id})){
                                 return done(null, profile);
                             } else {
@@ -77,9 +81,9 @@ class GitHubAuthSetup {
             }
         ));
 
-        this._app.use(passport.initialize());
-        this._app.use(passport.session());
+        app.use(passport.initialize());
+        app.use(passport.session());
     }
 }
 
-module.exports = GitHubAuthSetup;
+export default new GitHubAuthSetup();
