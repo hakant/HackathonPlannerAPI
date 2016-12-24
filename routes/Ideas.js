@@ -58,16 +58,10 @@ class IdeasRouteConfigurator {
         });
         router.get('/', function (req, res, next) {
             return __awaiter(this, void 0, void 0, function* () {
-                try {
-                    var request = new GetIdeas_1.GetIdeasRequest();
-                    request.user = req.user;
-                    var response = yield application_1.default.ExecuteAsync(request);
-                    res.json(response.ideas);
-                }
-                catch (err) {
-                    let errorMessage = `Unable to query. Error: ${JSON.stringify(err)}`;
-                    res.status(500).send(errorMessage);
-                }
+                var request = new GetIdeas_1.GetIdeasRequest();
+                request.user = req.user;
+                var response = yield application_1.default.ExecuteAsync(request);
+                res.json(response.ideas);
             });
         });
         router.post("/add", function (req, res, next) {
