@@ -95,6 +95,6 @@ class Server {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Server;
-//var server = Server.bootstrap();
-//server.startListening();
+var server = Server.bootstrap();
+server.startListening();
 //# sourceMappingURL=app.js.map

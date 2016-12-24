@@ -117,5 +117,5 @@ export default class Server {
     }
 }
 
-//var server = Server.bootstrap();
-//server.startListening();
+var server = Server.bootstrap();
+server.startListening();

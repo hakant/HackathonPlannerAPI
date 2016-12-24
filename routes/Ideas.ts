@@ -20,6 +20,10 @@ let ideaPrePostProcessor = new IdeaPrePostProcessor();
 
 import { RouteConfigurator } from './RouteConfigurator'
 
+// CommandPattern dependencies
+import application from "../application/application";
+import { GetIdeasRequest, GetIdeasResponse } from "../scenarios/GetIdeas";
+
 class IdeasRouteConfigurator implements RouteConfigurator {
 
   public configure(path: string, app: express.Application) {
@@ -56,13 +60,19 @@ class IdeasRouteConfigurator implements RouteConfigurator {
       }
     });
 
-    router.get('/', function (req, res, next) {
-      ideaRepository.GetAllIdeas(req.user)
-        .then(ideas => res.json(ideas))
-        .catch(err => {
-          let errorMessage = `Unable to query. Error: ${JSON.stringify(err)}`;
-          res.status(500).send(errorMessage);
-        });
+    router.get('/', async function (req, res, next) {
+      try {
+        var request = new GetIdeasRequest();
+        request.user = req.user;
+
+        var response = await application.ExecuteAsync<GetIdeasRequest, GetIdeasResponse>(request);
+        res.json(response.ideas);
+        
+      } catch (err) {
+        let errorMessage = `Unable to query. Error: ${JSON.stringify(err)}`;
+        res.status(500).send(errorMessage);
+      }
+
     });
 
     router.post("/add", function (req, res, next) {

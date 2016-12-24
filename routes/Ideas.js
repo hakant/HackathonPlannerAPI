@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
 const express = require("express");
 const router = express.Router();
 const nconf = require("nconf");
@@ -11,6 +19,9 @@ const AdminRepository_1 = require("../repositories/AdminRepository");
 let adminRepository = new AdminRepository_1.default;
 const IdeaPrePostProcessor_1 = require("../services/IdeaPrePostProcessor");
 let ideaPrePostProcessor = new IdeaPrePostProcessor_1.default();
+// CommandPattern dependencies
+const application_1 = require("../application/application");
+const GetIdeas_1 = require("../scenarios/GetIdeas");
 class IdeasRouteConfigurator {
     configure(path, app) {
         router.use(function ensureAuthenticated(req, res, next) {
@@ -46,11 +57,17 @@ class IdeasRouteConfigurator {
             }
         });
         router.get('/', function (req, res, next) {
-            ideaRepository.GetAllIdeas(req.user)
-                .then(ideas => res.json(ideas))
-                .catch(err => {
-                let errorMessage = `Unable to query. Error: ${JSON.stringify(err)}`;
-                res.status(500).send(errorMessage);
+            return __awaiter(this, void 0, void 0, function* () {
+                try {
+                    var request = new GetIdeas_1.GetIdeasRequest();
+                    request.user = req.user;
+                    var response = yield application_1.default.ExecuteAsync(request);
+                    res.json(response.ideas);
+                }
+                catch (err) {
+                    let errorMessage = `Unable to query. Error: ${JSON.stringify(err)}`;
+                    res.status(500).send(errorMessage);
+                }
             });
         });
         router.post("/add", function (req, res, next) {
