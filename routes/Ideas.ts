@@ -23,6 +23,7 @@ import { RouteConfigurator } from './RouteConfigurator'
 // CommandPattern dependencies
 import application from "../application/application";
 import { GetIdeasRequest, GetIdeasResponse } from "../scenarios/GetIdeas";
+import { InsertIdeaRequest, InsertIdeaResponse } from "../scenarios/InsertIdea";
 
 function catchAsyncErrors(fn) {  
     return (req, res, next) => {
@@ -79,15 +80,16 @@ class IdeasRouteConfigurator implements RouteConfigurator {
 
     }));
 
-    router.post("/add", function (req, res, next) {
-      ideaRepository.InsertIdea(req.body, req.user)
-        .then(data => res.sendStatus(200))
-        .catch(err => {
-          let errorMessage = `Unable to add item. Error JSON: ${JSON.stringify(err)}`;
-          console.log(errorMessage);
-          res.status(500).send(errorMessage);
-        });
-    });
+    router.post("/add", catchAsyncErrors(async function (req, res, next) {
+
+      var request = new InsertIdeaRequest();
+      request.user = req.user;
+      request.idea = <IIdea>req.body;
+
+      await application.ExecuteAsync<InsertIdeaRequest, InsertIdeaResponse>(request);
+      res.sendStatus(200)
+      
+    }));
 
     router.post("/edit-title", function (req, res, next) {
       ideaRepository.EditTitle(req.body, req.user)
