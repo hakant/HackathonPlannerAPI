@@ -24,6 +24,15 @@ import { RouteConfigurator } from './RouteConfigurator'
 import application from "../application/application";
 import { GetIdeasRequest, GetIdeasResponse } from "../scenarios/GetIdeas";
 
+function catchAsyncErrors(fn) {  
+    return (req, res, next) => {
+        const routePromise = fn(req, res, next);
+        if (routePromise.catch) {
+            routePromise.catch(err => next(err));
+        }
+    }
+}
+
 class IdeasRouteConfigurator implements RouteConfigurator {
 
   public configure(path: string, app: express.Application) {
@@ -60,15 +69,15 @@ class IdeasRouteConfigurator implements RouteConfigurator {
       }
     });
 
-    router.get('/', async function (req, res, next) {
-      
+    router.get('/', catchAsyncErrors(async function (req, res, next) {
+
       var request = new GetIdeasRequest();
-        request.user = req.user;
+      request.user = req.user;
 
-        var response = await application.ExecuteAsync<GetIdeasRequest, GetIdeasResponse>(request);
-        res.json(response.ideas);
+      var response = await application.ExecuteAsync<GetIdeasRequest, GetIdeasResponse>(request);
+      res.json(response.ideas);
 
-    });
+    }));
 
     router.post("/add", function (req, res, next) {
       ideaRepository.InsertIdea(req.body, req.user)

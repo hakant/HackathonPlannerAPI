@@ -84,6 +84,7 @@ export default class Server {
         if (this.app.get('env') === 'development') {
             this.app.use(
                 (err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+                    console.error(`Unhandled error occurred: ${err}`);
                     res.status(err.status || 500);
                     res.json({
                         message: err.message,
