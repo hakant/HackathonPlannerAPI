@@ -14,4 +14,4 @@ machine:
 
 compile:
   override:
-    - tsc -p
+    - tsc -p .
