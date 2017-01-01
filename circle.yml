@@ -11,3 +11,7 @@ machine:
   # Add some environment variables
   environment:
     CIRCLE_ENV: test
+
+compile:
+  override:
+    - tsc -p
