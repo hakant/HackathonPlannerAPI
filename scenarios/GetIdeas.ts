@@ -3,6 +3,7 @@
 import { AsyncCommandHandler } from "../application/command-handler"
 import container from "../application/command-handler-container";
 
+import * as nconf from 'nconf';
 import * as AWS from 'aws-sdk';
 import * as Bluebird from 'bluebird';
 import * as _ from 'underscore';
@@ -10,15 +11,15 @@ import * as _ from 'underscore';
 import IdeaPrePostProcessor from '../services/IdeaPrePostProcessor';
 const ideaPrePostProcessor = new IdeaPrePostProcessor();
 
-const tableName = "Ideas";
-
 class GetIdeasHandler implements AsyncCommandHandler<GetIdeasRequest, GetIdeasResponse> {
 
     async HandleAsync(request: GetIdeasRequest): Promise<GetIdeasResponse> {
+        const dbConfig = nconf.get("DynamoDb");
+
         var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient()) as AWS.DynamoDB.DocumentAsyncClient;
 
         var params = {
-            TableName: tableName
+            TableName: dbConfig.IdeasTableName
         };
 
         var data = await docClient.scanAsync(params);

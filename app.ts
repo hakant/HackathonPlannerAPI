@@ -67,7 +67,8 @@ export default class Server {
     }
 
     setupDatabase(){
-        databaseSetup.SetupNoSqlTables();
+        var config = nconf.get("DynamoDb");
+        databaseSetup.SetupNoSqlTables(config.IdeasTableName);
     }
 
     setupErrorHandling(){

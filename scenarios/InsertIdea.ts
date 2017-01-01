@@ -3,6 +3,7 @@
 import { AsyncCommandHandler } from "../application/command-handler"
 import container from "../application/command-handler-container";
 
+import * as nconf from 'nconf';
 import * as AWS from 'aws-sdk';
 import * as Bluebird from 'bluebird';
 
@@ -11,8 +12,6 @@ const ideaPrePostProcessor = new IdeaPrePostProcessor();
 
 import AdminRepository from '../repositories/AdminRepository';
 const adminRepository = new AdminRepository();
-
-const tableName = "Ideas";
 
 class InsertIdeaHandler implements AsyncCommandHandler<InsertIdeaRequest, InsertIdeaResponse> {
     private adminRepository: IAdminRepository;
@@ -35,8 +34,10 @@ class InsertIdeaHandler implements AsyncCommandHandler<InsertIdeaRequest, Insert
             };
         }
 
+        const dbConfig = nconf.get("DynamoDb");
+
         var params = {
-            TableName: tableName,
+            TableName: dbConfig.IdeasTableName,
             Item: ideaEntity
         };
 

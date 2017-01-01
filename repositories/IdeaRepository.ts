@@ -11,7 +11,7 @@ const ideaPrePostProcessor = new IdeaPrePostProcessor();
 import AdminRepository from './AdminRepository';
 const adminRepository = new AdminRepository();
 
-const tableName = "Ideas";
+const tableName = nconf.get("DynamoDb").IdeasTableName;
 
 var businessRules = nconf.get("BusinessRules");
 

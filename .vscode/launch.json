@@ -21,9 +21,22 @@
                 "HostInfo:HostUrl": "http://localhost:3000", 
                 "HostInfo:SPAUrl": "http://localhost:9000" 
             },
-            "externalConsole": false,
-            "sourceMaps": false,
-            "outDir": null
+            "sourceMaps": false
+        },
+        {
+            "name": "Run Tests",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/tests/runUnitTests.js",
+            "stopOnEntry": false,
+            "args": [],
+            "cwd": "${workspaceRoot}",
+            "sourceMaps": true,
+            "preLaunchTask": null,
+            "runtimeExecutable": null,
+            "runtimeArgs": [
+                "--nolazy"
+            ]
         },
         {
             "name": "Attach",
@@ -33,7 +46,6 @@
             "address": "localhost",
             "restart": false,
             "sourceMaps": false,
-            "outDir": null,
             "localRoot": "${workspaceRoot}",
             "remoteRoot": null
         },
@@ -43,8 +55,7 @@
             "request": "attach",
             "processId": "${command.PickProcess}",
             "port": 3000,
-            "sourceMaps": false,
-            "outDir": null
+            "sourceMaps": false
         }
     ]
 }
