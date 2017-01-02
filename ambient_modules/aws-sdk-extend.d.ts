@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk';
 
 declare module 'aws-sdk' {
-    export interface ClientConfigPartial extends Services {
+    export interface ClientConfigPartial {
         endpoint?: string;
     }
 
@@ -13,12 +13,12 @@ declare module 'aws-sdk' {
 
     export module DynamoDB {
         export interface DocumentAsyncClient {
-            getAsync(params: AWS.DynamoDB.GetParam): Promise<any>;
-            putAsync(params: AWS.DynamoDB.PutParam): Promise<any>;
-            deleteAsync(params: AWS.DynamoDB.DeleteParam): Promise<any>;
-            queryAsync(params: AWS.DynamoDB.QueryParam): Promise<any>;
-            scanAsync(params: AWS.DynamoDB.ScanParam): Promise<any>;
-            updateAsync(params: AWS.DynamoDB.UpdateParam): Promise<any>;
+            getAsync(params: GetParam): Promise<any>;
+            putAsync(params: PutParam): Promise<any>;
+            deleteAsync(params: DeleteParam): Promise<any>;
+            queryAsync(params: QueryParam): Promise<any>;
+            scanAsync(params: ScanParam): Promise<any>;
+            updateAsync(params: UpdateParam): Promise<any>;
             createSetAsync(list: any[], options?: { validate?: boolean }): Promise<{ values: any[], type: string }>;
             batchGetAsync(params: any): Promise<any>;
             batchWriteAsync(params: any): Promise<any>;
