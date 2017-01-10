@@ -7,7 +7,9 @@ machine:
   post:
     - curl -k -L -o dynamodb-local.tgz http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz
     - tar -xzf dynamodb-local.tgz
-    - java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb -inMemory
+    - java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb: 
+        background:true
+
 
   # Override /etc/hosts
   hosts:
