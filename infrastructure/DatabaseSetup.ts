@@ -8,7 +8,7 @@ class DatabaseSetup {
 
     async SetupNoSqlTables(ideasTableName: string): Promise<any> {
         var config = nconf.get("DynamoDb");
-        AWS.config.update({
+        AWS.config.update(<any>{
             region: config.Region,
             endpoint: config.Endpoint
         });
@@ -50,7 +50,7 @@ class DatabaseSetup {
 
     async BringDownNoSqlTables(ideasTableName: string) {
         var config = nconf.get("DynamoDb");
-        AWS.config.update({
+        AWS.config.update(<any>{
             region: config.Region,
             endpoint: config.Endpoint
         });

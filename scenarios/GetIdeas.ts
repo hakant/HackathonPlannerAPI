@@ -16,7 +16,7 @@ class GetIdeasHandler implements AsyncCommandHandler<GetIdeasRequest, GetIdeasRe
     async HandleAsync(request: GetIdeasRequest): Promise<GetIdeasResponse> {
         const dbConfig = nconf.get("DynamoDb");
 
-        var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient()) as AWS.DynamoDB.DocumentAsyncClient;
+        var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient()) as AWS.DocumentAsyncClient;
 
         var params = {
             TableName: dbConfig.IdeasTableName

@@ -21,7 +21,7 @@ class InsertIdeaHandler implements AsyncCommandHandler<InsertIdeaRequest, Insert
     }
 
     async HandleAsync(request: InsertIdeaRequest): Promise<InsertIdeaResponse> {
-        var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient()) as AWS.DynamoDB.DocumentAsyncClient;
+        var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient()) as AWS.DocumentAsyncClient;
         var ideaEntity = ideaPrePostProcessor.PreProcess(request.idea);
 
         if (!this.adminRepository.IsUserAdmin(request.user.username)) {
@@ -41,7 +41,7 @@ class InsertIdeaHandler implements AsyncCommandHandler<InsertIdeaRequest, Insert
             Item: ideaEntity
         };
 
-        var data = await docClient.putAsync(params);
+        var data = await docClient.putAsync(<any>params);
 
         return new InsertIdeaResponse();
     }   
