@@ -10,7 +10,9 @@ class DatabaseSetup {
         var config = nconf.get("DynamoDb");
         AWS.config.update(<any>{
             region: config.Region,
-            endpoint: config.Endpoint
+            endpoint: config.Endpoint,
+            accessKeyId: "testId",
+            secretAccessKey: "testKey"
         });
 
         config.IdeasTableName = ideasTableName;
@@ -52,7 +54,9 @@ class DatabaseSetup {
         var config = nconf.get("DynamoDb");
         AWS.config.update(<any>{
             region: config.Region,
-            endpoint: config.Endpoint
+            endpoint: config.Endpoint,
+            accessKeyId: "testId",
+            secretAccessKey: "testKey"
         });
 
         var dynamodb = Bluebird.promisifyAll(new AWS.DynamoDB()) as AWS.DynamoDBAsync;
