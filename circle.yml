@@ -4,6 +4,10 @@ machine:
     version: 5.11
   java:
     version: openjdk7
+  post:
+    - curl -k -L -o dynamodb-local.tgz http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz
+    - tar -xzf dynamodb-local.tgz
+    - java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb: background: true
 
   # Override /etc/hosts
   hosts:
@@ -15,12 +19,6 @@ machine:
     CIRCLE_ENV: test
     _JAVA_OPTIONS: "-Xms512m -Xmx1024m"
 
-  post:
-    - curl -k -L -o dynamodb-local.tgz http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz
-    - tar -xzf dynamodb-local.tgz
-    - java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb: background: true
-
 compile:
   override:
-    - tsc -v
     - tsc -p .
