@@ -24,6 +24,7 @@ import { RouteConfigurator } from './RouteConfigurator'
 import application from "../application/application";
 import { GetIdeasRequest, GetIdeasResponse } from "../scenarios/GetIdeas";
 import { InsertIdeaRequest, InsertIdeaResponse } from "../scenarios/InsertIdea";
+import { EditIdeaTitleRequest, EditIdeaTitleResponse } from "../scenarios/EditIdeaTitle";
 
 function catchAsyncErrors(fn) {  
     return (req, res, next) => {
@@ -87,22 +88,20 @@ class IdeasRouteConfigurator implements RouteConfigurator {
       request.idea = <IIdea>req.body;
 
       await application.ExecuteAsync<InsertIdeaRequest, InsertIdeaResponse>(request);
-      res.sendStatus(200)
+      res.sendStatus(200);
       
     }));
 
-    router.post("/edit-title", function (req, res, next) {
-      ideaRepository.EditTitle(req.body, req.user)
-        .then(data => {
-          console.log("Updated title:", JSON.stringify(data));
-          res.sendStatus(200);
-        })
-        .catch(err => {
-          let errorMessage = `Unable to update item. Error JSON: ${JSON.stringify(err)}`;
-          console.error(errorMessage);
-          res.status(500).send(errorMessage);
-        });
-    });
+    router.post("/edit-title", catchAsyncErrors(async function (req, res, next) {
+
+      var request = new EditIdeaTitleRequest();
+      request.user = req.user;
+      request.idea = <IIdea>req.body;
+
+      await application.ExecuteAsync<EditIdeaTitleRequest, EditIdeaTitleResponse>(request);
+      res.sendStatus(200);
+      
+    }));
 
     router.post("/edit-overview", function (req, res, next) {
       ideaRepository.EditOverview(req.body, req.user)
