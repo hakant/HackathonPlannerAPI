@@ -14,16 +14,18 @@ import testHelpers from "./TestHelpers";
 let tableName;
 
 describe("Insert and Get Ideas Scenarios", function () {
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     tableName = `Ideas_${testHelpers.GenerateRandomNumber()}`;
     await databaseSetup.SetupNoSqlTables(tableName);
+    done();
   });
 
-  afterEach(async () => {
+  afterEach(async (done) => {
     await databaseSetup.BringDownNoSqlTables(tableName);
+    done();
   });
 
-  it("Initially there are no ideas", async function () {
+  it("Initially there are no ideas", async function (done) {
 
     var request = new GetIdeasRequest();
     request.user = {
@@ -38,9 +40,10 @@ describe("Insert and Get Ideas Scenarios", function () {
     var response = await application.ExecuteAsync<GetIdeasRequest, GetIdeasResponse>(request);
     expect(response.ideas.length).toBe(0);
 
+    done();
   });
 
-  it("When there is an idea in the system, it's fetched and returned correctly", async function () {
+  it("When there is an idea in the system, it's fetched and returned correctly", async function (done) {
 
     let testLoggedOnUser: ILoggedOnUser = {
       id: "1",
@@ -62,9 +65,10 @@ describe("Insert and Get Ideas Scenarios", function () {
     expect(response.ideas.length).toBe(1);
     expect(response.ideas[0]).toEqual(idea);
 
+    done();
   });
 
-  it("When there are multiple ideas in the system, they're fetched and returned in correct order", async function () {
+  it("When there are multiple ideas in the system, they're fetched and returned in correct order", async function (done) {
 
     let testLoggedOnUser: ILoggedOnUser = {
       id: "1",
@@ -95,9 +99,10 @@ describe("Insert and Get Ideas Scenarios", function () {
     expect(response.ideas.length).toBe(4);
     expect(response.ideas).toEqual([idea3, idea2, idea1, idea4]);
 
+    done();
   });
 
-  it("Logged on user's like and join status is correctly maintained", async function () {
+  it("Logged on user's like and join status is correctly maintained", async function (done) {
 
     let testLoggedOnUser: ILoggedOnUser = {
       id: "1",
@@ -127,6 +132,8 @@ describe("Insert and Get Ideas Scenarios", function () {
     var response = await application.ExecuteAsync<GetIdeasRequest, GetIdeasResponse>(request);
     expect(response.ideas.length).toBe(4);
     expect(response.ideas).toEqual([idea3, idea2, idea1, idea4]);
+
+    done();
 
   });
 });
