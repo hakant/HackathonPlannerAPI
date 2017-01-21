@@ -7,13 +7,13 @@ import databaseSetup from "../../infrastructure/DatabaseSetup";
 import application from "../../application/application";
 
 import { GetIdeasRequest, GetIdeasResponse } from "../../scenarios/GetIdeas";
-import { EditIdeaTitleRequest, EditIdeaTitleResponse } from "../../scenarios/EditIdeaTitle";
+import { EditIdeaRequest, EditIdeaResponse, EditMode } from "../../scenarios/EditIdea";
 
 import testHelpers from "./TestHelpers";
 
 let tableName;
 
-describe("Edit Idea Title Scenario", function () {
+describe("Edit Idea Scenario", function () {
     beforeEach(async (done) => {
         tableName = `Ideas_${testHelpers.GenerateRandomNumber()}`;
         await databaseSetup.SetupNoSqlTables(tableName);
@@ -51,11 +51,12 @@ describe("Edit Idea Title Scenario", function () {
         const updatedTitle = "Updated Title!";
         idea.title = updatedTitle;
 
-        let updateRequest = new EditIdeaTitleRequest();
+        let updateRequest = new EditIdeaRequest();
         updateRequest.idea = idea;
         updateRequest.user = testLoggedOnUser;
+        updateRequest.mode = EditMode.Title;
 
-        await application.ExecuteAsync<EditIdeaTitleRequest, EditIdeaTitleResponse>(updateRequest);
+        await application.ExecuteAsync<EditIdeaRequest, EditIdeaResponse>(updateRequest);
         
         var request = new GetIdeasRequest();
         request.user = testLoggedOnUser;
@@ -63,6 +64,92 @@ describe("Edit Idea Title Scenario", function () {
         var response = await application.ExecuteAsync<GetIdeasRequest, GetIdeasResponse>(request);
         expect(response.ideas.length).toBe(1);
         expect(response.ideas[0].title).toEqual(updatedTitle);
+
+        done();
+    });
+
+    it("When user is authorized, editing an idea's overview does update the overview correctly", async function (done) {
+
+        let testLoggedOnUser: ILoggedOnUser = {
+            id: "1",
+            username: "hakant",
+            displayName: "Hakan Tuncer",
+            _json: {
+                avatar_url: "AvatarURL"
+            }
+        };
+
+        // Setup
+        let idea = testHelpers.GenerateIdeaWithId("123", testLoggedOnUser, 0, 0,
+            {
+                id: "1",
+                login: "hakant",
+                name: "Hakan Tuncer",
+                avatar_url: "AvatarURL"
+            }
+        );
+        await testHelpers.InsertIdea(testLoggedOnUser, idea);
+
+        // Act
+        const updatedOverview = "Updated Overview!";
+        idea.overview = updatedOverview;
+
+        let updateRequest = new EditIdeaRequest();
+        updateRequest.idea = idea;
+        updateRequest.user = testLoggedOnUser;
+        updateRequest.mode = EditMode.Overview;
+
+        await application.ExecuteAsync<EditIdeaRequest, EditIdeaResponse>(updateRequest);
+        
+        var request = new GetIdeasRequest();
+        request.user = testLoggedOnUser;
+
+        var response = await application.ExecuteAsync<GetIdeasRequest, GetIdeasResponse>(request);
+        expect(response.ideas.length).toBe(1);
+        expect(response.ideas[0].overview).toEqual(updatedOverview);
+
+        done();
+    });
+
+    it("When user is authorized, editing an idea's description does update the description correctly", async function (done) {
+
+        let testLoggedOnUser: ILoggedOnUser = {
+            id: "1",
+            username: "hakant",
+            displayName: "Hakan Tuncer",
+            _json: {
+                avatar_url: "AvatarURL"
+            }
+        };
+
+        // Setup
+        let idea = testHelpers.GenerateIdeaWithId("123", testLoggedOnUser, 0, 0,
+            {
+                id: "1",
+                login: "hakant",
+                name: "Hakan Tuncer",
+                avatar_url: "AvatarURL"
+            }
+        );
+        await testHelpers.InsertIdea(testLoggedOnUser, idea);
+
+        // Act
+        const updatedDescription = "Updated Description!";
+        idea.description = updatedDescription;
+
+        let updateRequest = new EditIdeaRequest();
+        updateRequest.idea = idea;
+        updateRequest.user = testLoggedOnUser;
+        updateRequest.mode = EditMode.Description;
+
+        await application.ExecuteAsync<EditIdeaRequest, EditIdeaResponse>(updateRequest);
+        
+        var request = new GetIdeasRequest();
+        request.user = testLoggedOnUser;
+
+        var response = await application.ExecuteAsync<GetIdeasRequest, GetIdeasResponse>(request);
+        expect(response.ideas.length).toBe(1);
+        expect(response.ideas[0].description).toEqual(updatedDescription);
 
         done();
     });
@@ -105,12 +192,13 @@ describe("Edit Idea Title Scenario", function () {
         const updatedTitle = "Updated Title!";
         idea.title = updatedTitle;
 
-        let updateRequest = new EditIdeaTitleRequest();
+        let updateRequest = new EditIdeaRequest();
         updateRequest.idea = idea;
         updateRequest.user = testLoggedOnUser;
+        updateRequest.mode = EditMode.Title;
 
         try{
-            await application.ExecuteAsync<EditIdeaTitleRequest, EditIdeaTitleResponse>(updateRequest);
+            await application.ExecuteAsync<EditIdeaRequest, EditIdeaResponse>(updateRequest);
         } catch(err){
 
             expect(err.message).toBe("Action is not authorized!");
@@ -167,11 +255,12 @@ describe("Edit Idea Title Scenario", function () {
         const updatedTitle = "Updated Title!";
         idea.title = updatedTitle;
 
-        let updateRequest = new EditIdeaTitleRequest();
+        let updateRequest = new EditIdeaRequest();
         updateRequest.idea = idea;
         updateRequest.user = testLoggedOnUser;
+        updateRequest.mode = EditMode.Title;
 
-        await application.ExecuteAsync<EditIdeaTitleRequest, EditIdeaTitleResponse>(updateRequest);
+        await application.ExecuteAsync<EditIdeaRequest, EditIdeaResponse>(updateRequest);
         
         var request = new GetIdeasRequest();
         request.user = testLoggedOnUser;
@@ -211,11 +300,12 @@ describe("Edit Idea Title Scenario", function () {
         const updatedTitle = "Updated Title!";
         idea.title = updatedTitle;
 
-        let updateRequest = new EditIdeaTitleRequest();
+        let updateRequest = new EditIdeaRequest();
         updateRequest.idea = idea;
         updateRequest.user = testLoggedOnUser;
+        updateRequest.mode = EditMode.Title;
 
-        await application.ExecuteAsync<EditIdeaTitleRequest, EditIdeaTitleResponse>(updateRequest);
+        await application.ExecuteAsync<EditIdeaRequest, EditIdeaResponse>(updateRequest);
         
         var request = new GetIdeasRequest();
         request.user = testLoggedOnUser;

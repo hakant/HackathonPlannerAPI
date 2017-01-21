@@ -13,14 +13,14 @@ const ideaPrePostProcessor = new IdeaPrePostProcessor();
 import AdminRepository from '../repositories/AdminRepository';
 const adminRepository = new AdminRepository();
 
-class EditIdeaTitleHandler implements AsyncCommandHandler<EditIdeaTitleRequest, EditIdeaTitleResponse> {
+class EditIdeaHandler implements AsyncCommandHandler<EditIdeaRequest, EditIdeaResponse> {
     private adminRepository: IAdminRepository;
 
     constructor(adminRepository: IAdminRepository) {
         this.adminRepository = adminRepository;
     }
 
-    async HandleAsync(request: EditIdeaTitleRequest): Promise<EditIdeaTitleResponse> {
+    async HandleAsync(request: EditIdeaRequest): Promise<EditIdeaResponse> {
         var docClient = Bluebird.promisifyAll(new AWS.DynamoDB.DocumentClient()) as AWS.DocumentAsyncClient;
         var ideaEntity = ideaPrePostProcessor.PreProcess(request.idea);
 
@@ -30,26 +30,46 @@ class EditIdeaTitleHandler implements AsyncCommandHandler<EditIdeaTitleRequest, 
         }
 
         const dbConfig = nconf.get("DynamoDb");
-        var params = {
+        var params : AWS.DynamoDB.DocumentClient.UpdateItemInput = {
             TableName: dbConfig.IdeasTableName,
             Key: {
                 id: ideaEntity.id
-            },
-            UpdateExpression: "set title = :t",
-            ExpressionAttributeValues: {
-                ":t": ideaEntity.title
             },
             ReturnValues: "UPDATED_NEW",
             AttributeUpdates: undefined
         };
 
+        switch (request.mode) {
+            case EditMode.Title: {
+                params.UpdateExpression = "set title = :p";
+                params.ExpressionAttributeValues = {
+                    ":p": ideaEntity.title
+                };
+                break;
+            }
+            case EditMode.Overview: {
+                params.UpdateExpression = "set overview = :p";
+                params.ExpressionAttributeValues = {
+                    ":p": ideaEntity.overview
+                };
+                break;
+            }
+            case EditMode.Description: {
+                params.UpdateExpression = "set description = :p";
+                params.ExpressionAttributeValues = {
+                    ":p": ideaEntity.description
+                };
+                break;
+            }
+        }
+
         await docClient.updateAsync(params);
 
-        return new EditIdeaTitleResponse();
+        return new EditIdeaResponse();
     }
 
     private async CanModifyIdea(idea: IIdeaEntity, user: ILoggedOnUser): Promise<boolean> {
-        if (adminRepository.IsUserAdmin(user.username)){
+        if (adminRepository.IsUserAdmin(user.username)) {
             return true;
         }
 
@@ -83,14 +103,21 @@ class EditIdeaTitleHandler implements AsyncCommandHandler<EditIdeaTitleRequest, 
     }
 }
 
-export class EditIdeaTitleRequest {
-    idea: IIdea;
-    user: ILoggedOnUser;
+export enum EditMode {
+    Title,
+    Overview,
+    Description
 }
 
-export class EditIdeaTitleResponse {
+export class EditIdeaRequest {
+    idea: IIdea;
+    user: ILoggedOnUser;
+    mode: EditMode;
+}
+
+export class EditIdeaResponse {
 }
 
 // Register the handler to the request
-let handler = new EditIdeaTitleHandler(adminRepository);
-container.RegisterAsyncHandler(EditIdeaTitleRequest, handler);
+let handler = new EditIdeaHandler(adminRepository);
+container.RegisterAsyncHandler(EditIdeaRequest, handler);

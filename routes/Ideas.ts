@@ -24,7 +24,7 @@ import { RouteConfigurator } from './RouteConfigurator'
 import application from "../application/application";
 import { GetIdeasRequest, GetIdeasResponse } from "../scenarios/GetIdeas";
 import { InsertIdeaRequest, InsertIdeaResponse } from "../scenarios/InsertIdea";
-import { EditIdeaTitleRequest, EditIdeaTitleResponse } from "../scenarios/EditIdeaTitle";
+import { EditIdeaRequest, EditIdeaResponse, EditMode } from "../scenarios/EditIdea";
 
 function catchAsyncErrors(fn) {  
     return (req, res, next) => {
@@ -94,40 +94,39 @@ class IdeasRouteConfigurator implements RouteConfigurator {
 
     router.post("/edit-title", catchAsyncErrors(async function (req, res, next) {
 
-      var request = new EditIdeaTitleRequest();
+      var request = new EditIdeaRequest();
       request.user = req.user;
       request.idea = <IIdea>req.body;
+      request.mode = EditMode.Title;
 
-      await application.ExecuteAsync<EditIdeaTitleRequest, EditIdeaTitleResponse>(request);
+      await application.ExecuteAsync<EditIdeaRequest, EditIdeaResponse>(request);
       res.sendStatus(200);
       
     }));
 
-    router.post("/edit-overview", function (req, res, next) {
-      ideaRepository.EditOverview(req.body, req.user)
-        .then(data => {
-          console.log("Updated overview:", JSON.stringify(data));
-          res.sendStatus(200);
-        })
-        .catch(err => {
-          let errorMessage = `Unable to update item. Error JSON: ${JSON.stringify(err)}`;
-          console.error(errorMessage);
-          res.status(500).send(errorMessage);
-        });
-    });
+    router.post("/edit-overview", catchAsyncErrors(async function (req, res, next) {
+      
+      var request = new EditIdeaRequest();
+      request.user = req.user;
+      request.idea = <IIdea>req.body;
+      request.mode = EditMode.Overview;
 
-    router.post("/edit-description", function (req, res, next) {
-      ideaRepository.EditDescription(req.body, req.user)
-        .then(data => {
-          console.log("Updated description:", JSON.stringify(data));
-          res.sendStatus(200);
-        })
-        .catch(err => {
-          let errorMessage = `Unable to update item. Error JSON: ${JSON.stringify(err)}`;
-          console.error(errorMessage);
-          res.status(500).send(errorMessage);
-        });
-    });
+      await application.ExecuteAsync<EditIdeaRequest, EditIdeaResponse>(request);
+      res.sendStatus(200);
+
+    }));
+
+    router.post("/edit-description", catchAsyncErrors(async function (req, res, next) {
+      
+      var request = new EditIdeaRequest();
+      request.user = req.user;
+      request.idea = <IIdea>req.body;
+      request.mode = EditMode.Description;
+
+      await application.ExecuteAsync<EditIdeaRequest, EditIdeaResponse>(request);
+      res.sendStatus(200);
+
+    }));
 
     router.post("/like", function (req, res, next) {
       ideaRepository.LikeIdea(req.body.ideaId, req.user)
