@@ -25,6 +25,7 @@ import application from "../application/application";
 import { GetIdeasRequest, GetIdeasResponse } from "../scenarios/GetIdeas";
 import { InsertIdeaRequest, InsertIdeaResponse } from "../scenarios/InsertIdea";
 import { EditIdeaRequest, EditIdeaResponse, EditMode } from "../scenarios/EditIdea";
+import { ToggleIdeaLikeRequest, ToggleIdeaLikeResponse } from "../scenarios/ToggleIdeaLike";
 
 function catchAsyncErrors(fn) {  
     return (req, res, next) => {
@@ -128,19 +129,16 @@ class IdeasRouteConfigurator implements RouteConfigurator {
 
     }));
 
-    router.post("/like", function (req, res, next) {
-      ideaRepository.LikeIdea(req.body.ideaId, req.user)
-        .then(data => {
-          console.log("Updated likedList:", JSON.stringify(data));
-          res.sendStatus(200);
-        })
-        .catch(err => {
-          let errorMessage = `Unable to update item. Error JSON: ${err}`;
-          console.error(errorMessage);
-          console.error(err);
-          res.status(500).send(errorMessage);
-        });
-    });
+    router.post("/like", catchAsyncErrors(async function (req, res, next) {
+      
+      var request = new ToggleIdeaLikeRequest();
+      request.user = req.user;
+      request.ideaId = req.body.ideaId
+
+      await application.ExecuteAsync<ToggleIdeaLikeRequest, ToggleIdeaLikeResponse>(request);
+      res.sendStatus(200);
+
+    }));
 
     router.post("/join", function (req, res, next) {
       ideaRepository.JoinIdea(req.body.ideaId, req.user)

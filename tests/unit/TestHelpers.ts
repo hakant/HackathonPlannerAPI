@@ -71,7 +71,7 @@ class TestHelpers {
 
     private GenerateLikeList(numberOfLikes?: number) {
         let likedList = [];
-        if (numberOfLikes) {
+        if (numberOfLikes !== undefined) {
             for (let i = 0; i < numberOfLikes; i++) {
                 let id = this.GenerateRandomNumber();
                 likedList.push({
@@ -96,7 +96,7 @@ class TestHelpers {
 
     private GenerateJoinList(numberOfJoins?: number) {
         let joinedList = [];
-        if (numberOfJoins) {
+        if (numberOfJoins !== undefined) {
             for (let i = 0; i < numberOfJoins; i++) {
                 let id = this.GenerateRandomNumber();
                 joinedList.push({
