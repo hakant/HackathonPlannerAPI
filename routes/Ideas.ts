@@ -6,17 +6,8 @@ const router = express.Router();
 import * as nconf from 'nconf';
 let businessRules = nconf.get("BusinessRules");
 
-import IdeaRepository from "../repositories/IdeaRepository";
-let ideaRepository = new IdeaRepository();
-
-import Helpers from '../utilities/Helpers';
-let helpers = new Helpers();
-
 import AdminRepository from '../repositories/AdminRepository';
 let adminRepository = new AdminRepository;
-
-import IdeaPrePostProcessor from '../services/IdeaPrePostProcessor';
-let ideaPrePostProcessor = new IdeaPrePostProcessor();
 
 import { RouteConfigurator } from './RouteConfigurator'
 
@@ -26,14 +17,16 @@ import { GetIdeasRequest, GetIdeasResponse } from "../scenarios/GetIdeas";
 import { InsertIdeaRequest, InsertIdeaResponse } from "../scenarios/InsertIdea";
 import { EditIdeaRequest, EditIdeaResponse, EditMode } from "../scenarios/EditIdea";
 import { ToggleIdeaLikeRequest, ToggleIdeaLikeResponse } from "../scenarios/ToggleIdeaLike";
+import { JoinIdeaRequest, JoinIdeaResponse } from "../scenarios/JoinIdea";
+import { LeaveIdeaRequest, LeaveIdeaResponse } from "../scenarios/LeaveIdea";
 
-function catchAsyncErrors(fn) {  
-    return (req, res, next) => {
-        const routePromise = fn(req, res, next);
-        if (routePromise.catch) {
-            routePromise.catch(err => next(err));
-        }
+function catchAsyncErrors(fn) {
+  return (req, res, next) => {
+    const routePromise = fn(req, res, next);
+    if (routePromise.catch) {
+      routePromise.catch(err => next(err));
     }
+  }
 }
 
 class IdeasRouteConfigurator implements RouteConfigurator {
@@ -90,7 +83,7 @@ class IdeasRouteConfigurator implements RouteConfigurator {
 
       await application.ExecuteAsync<InsertIdeaRequest, InsertIdeaResponse>(request);
       res.sendStatus(200);
-      
+
     }));
 
     router.post("/edit-title", catchAsyncErrors(async function (req, res, next) {
@@ -102,11 +95,11 @@ class IdeasRouteConfigurator implements RouteConfigurator {
 
       await application.ExecuteAsync<EditIdeaRequest, EditIdeaResponse>(request);
       res.sendStatus(200);
-      
+
     }));
 
     router.post("/edit-overview", catchAsyncErrors(async function (req, res, next) {
-      
+
       var request = new EditIdeaRequest();
       request.user = req.user;
       request.idea = <IIdea>req.body;
@@ -118,7 +111,7 @@ class IdeasRouteConfigurator implements RouteConfigurator {
     }));
 
     router.post("/edit-description", catchAsyncErrors(async function (req, res, next) {
-      
+
       var request = new EditIdeaRequest();
       request.user = req.user;
       request.idea = <IIdea>req.body;
@@ -130,7 +123,7 @@ class IdeasRouteConfigurator implements RouteConfigurator {
     }));
 
     router.post("/like", catchAsyncErrors(async function (req, res, next) {
-      
+
       var request = new ToggleIdeaLikeRequest();
       request.user = req.user;
       request.ideaId = req.body.ideaId
@@ -140,35 +133,30 @@ class IdeasRouteConfigurator implements RouteConfigurator {
 
     }));
 
-    router.post("/join", function (req, res, next) {
-      ideaRepository.JoinIdea(req.body.ideaId, req.user)
-        .then(data => {
-          console.log("Updated joinedList:", JSON.stringify(data));
-          res.sendStatus(200);
-        })
-        .catch(err => {
-          let errorMessage = `Unable to update item. Error JSON: ${err}`;
-          console.error(errorMessage);
-          res.status(500).send(errorMessage);
-        });
-    });
+    router.post("/join", catchAsyncErrors(async function (req, res, next) {
 
-    router.post("/unjoin", function (req, res, next) {
-      ideaRepository.UnJoinIdea(req.body.ideaId, req.user)
-        .then(data => {
-          console.log("Updated joinedList:", JSON.stringify(data));
-          res.sendStatus(200);
-        })
-        .catch(err => {
-          let errorMessage = `Unable to update item. Error JSON: ${err}`;
-          console.error(errorMessage);
-          res.status(500).send(errorMessage);
-        });
-    });
+      var request = new JoinIdeaRequest();
+      request.user = req.user;
+      request.ideaId = req.body.ideaId
+
+      await application.ExecuteAsync<JoinIdeaRequest, JoinIdeaResponse>(request);
+      res.sendStatus(200);
+
+    }));
+
+    router.post("/unjoin", catchAsyncErrors(async function (req, res, next) {
+
+      var request = new LeaveIdeaRequest();
+      request.user = req.user;
+      request.ideaId = req.body.ideaId
+
+      await application.ExecuteAsync<LeaveIdeaRequest, LeaveIdeaResponse>(request);
+      res.sendStatus(200);
+
+    }));
 
     app.use(path, router);
   }
-
 }
 
 export default new IdeasRouteConfigurator();
