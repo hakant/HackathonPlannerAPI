@@ -2,7 +2,9 @@
     "DynamoDb": {
         "Region": "eu-central-1",
         "Endpoint": "http://localhost:8000",
-        "IdeasTableName": "Ideas"
+        "IdeasTableName": "Ideas",
+        "AccessKey": "DummyKey",
+        "SecretAccessKey": "DummySecret"
     },
     "HostInfo": {
         "HostUrl": "http://localhost:3000",
