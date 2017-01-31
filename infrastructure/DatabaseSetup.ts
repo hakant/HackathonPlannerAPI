@@ -11,8 +11,8 @@ class DatabaseSetup {
         AWS.config.update(<any>{
             region: config.Region,
             endpoint: config.Endpoint,
-            accessKeyId: "testId",
-            secretAccessKey: "testKey"
+            accessKeyId: config.AccessKey,
+            secretAccessKey: config.SecretAccessKey
         });
 
         config.IdeasTableName = ideasTableName;
