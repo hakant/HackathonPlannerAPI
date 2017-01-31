@@ -1,3 +1,3 @@
-[![CircleCI](https://circleci.com/gh/hakant/HackathonPlannerAPI/tree/apply-command-pattern.svg?style=svg)](https://circleci.com/gh/hakant/HackathonPlannerAPI/tree/apply-command-pattern)
+[![CircleCI](https://circleci.com/gh/hakant/HackathonPlannerAPI.svg?style=svg)](https://circleci.com/gh/hakant/HackathonPlannerAPI)
 # HackathonPlannerAPI
 Backend API for Hackathon Planner
