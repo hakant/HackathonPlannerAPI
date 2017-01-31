@@ -14,9 +14,10 @@ export default class IdeaPrePostProcessor {
         this._ideaSkeleton = "id,user(login,id,avatar_url,name),title,overview,description,likedList,joinedList";
     }
 
-    PreProcess(idea: IIdea): IIdeaEntity {
+    PreProcess(idea: IIdea | IIdeaEntity): IIdeaEntity {
         var sanitizedObject = mask(idea, this._ideaSkeleton) as IIdeaEntity;
-        return helpers.ReplacePropertyValuesOf(sanitizedObject, "", null);      // replace all empty strings with nulls
+        // replace all empty strings with nulls - dynamodb doesn't like empty strings
+        return helpers.ReplacePropertyValuesOf(sanitizedObject, "", null);
     }
 
     PostProcess(idea: IIdeaEntity, user: ILoggedOnUser) : IIdea {

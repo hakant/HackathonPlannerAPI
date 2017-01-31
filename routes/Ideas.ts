@@ -6,19 +6,28 @@ const router = express.Router();
 import * as nconf from 'nconf';
 let businessRules = nconf.get("BusinessRules");
 
-import IdeaRepository from "../repositories/IdeaRepository";
-let ideaRepository = new IdeaRepository();
-
-import Helpers from '../utilities/Helpers';
-let helpers = new Helpers();
-
 import AdminRepository from '../repositories/AdminRepository';
 let adminRepository = new AdminRepository;
 
-import IdeaPrePostProcessor from '../services/IdeaPrePostProcessor';
-let ideaPrePostProcessor = new IdeaPrePostProcessor();
-
 import { RouteConfigurator } from './RouteConfigurator'
+
+// CommandPattern dependencies
+import application from "../application/application";
+import { GetIdeasRequest, GetIdeasResponse } from "../scenarios/GetIdeas";
+import { InsertIdeaRequest, InsertIdeaResponse } from "../scenarios/InsertIdea";
+import { EditIdeaRequest, EditIdeaResponse, EditMode } from "../scenarios/EditIdea";
+import { ToggleIdeaLikeRequest, ToggleIdeaLikeResponse } from "../scenarios/ToggleIdeaLike";
+import { JoinIdeaRequest, JoinIdeaResponse } from "../scenarios/JoinIdea";
+import { LeaveIdeaRequest, LeaveIdeaResponse } from "../scenarios/LeaveIdea";
+
+function catchAsyncErrors(fn) {
+  return (req, res, next) => {
+    const routePromise = fn(req, res, next);
+    if (routePromise.catch) {
+      routePromise.catch(err => next(err));
+    }
+  }
+}
 
 class IdeasRouteConfigurator implements RouteConfigurator {
 
@@ -56,107 +65,98 @@ class IdeasRouteConfigurator implements RouteConfigurator {
       }
     });
 
-    router.get('/', function (req, res, next) {
-      ideaRepository.GetAllIdeas(req.user)
-        .then(ideas => res.json(ideas))
-        .catch(err => {
-          let errorMessage = `Unable to query. Error: ${JSON.stringify(err)}`;
-          res.status(500).send(errorMessage);
-        });
-    });
+    router.get('/', catchAsyncErrors(async function (req, res, next) {
 
-    router.post("/add", function (req, res, next) {
-      ideaRepository.InsertIdea(req.body, req.user)
-        .then(data => res.sendStatus(200))
-        .catch(err => {
-          let errorMessage = `Unable to add item. Error JSON: ${JSON.stringify(err)}`;
-          console.log(errorMessage);
-          res.status(500).send(errorMessage);
-        });
-    });
+      var request = new GetIdeasRequest();
+      request.user = req.user;
 
-    router.post("/edit-title", function (req, res, next) {
-      ideaRepository.EditTitle(req.body, req.user)
-        .then(data => {
-          console.log("Updated title:", JSON.stringify(data));
-          res.sendStatus(200);
-        })
-        .catch(err => {
-          let errorMessage = `Unable to update item. Error JSON: ${JSON.stringify(err)}`;
-          console.error(errorMessage);
-          res.status(500).send(errorMessage);
-        });
-    });
+      var response = await application.ExecuteAsync<GetIdeasRequest, GetIdeasResponse>(request);
+      res.json(response.ideas);
 
-    router.post("/edit-overview", function (req, res, next) {
-      ideaRepository.EditOverview(req.body, req.user)
-        .then(data => {
-          console.log("Updated overview:", JSON.stringify(data));
-          res.sendStatus(200);
-        })
-        .catch(err => {
-          let errorMessage = `Unable to update item. Error JSON: ${JSON.stringify(err)}`;
-          console.error(errorMessage);
-          res.status(500).send(errorMessage);
-        });
-    });
+    }));
 
-    router.post("/edit-description", function (req, res, next) {
-      ideaRepository.EditDescription(req.body, req.user)
-        .then(data => {
-          console.log("Updated description:", JSON.stringify(data));
-          res.sendStatus(200);
-        })
-        .catch(err => {
-          let errorMessage = `Unable to update item. Error JSON: ${JSON.stringify(err)}`;
-          console.error(errorMessage);
-          res.status(500).send(errorMessage);
-        });
-    });
+    router.post("/add", catchAsyncErrors(async function (req, res, next) {
 
-    router.post("/like", function (req, res, next) {
-      ideaRepository.LikeIdea(req.body.ideaId, req.user)
-        .then(data => {
-          console.log("Updated likedList:", JSON.stringify(data));
-          res.sendStatus(200);
-        })
-        .catch(err => {
-          let errorMessage = `Unable to update item. Error JSON: ${err}`;
-          console.error(errorMessage);
-          console.error(err);
-          res.status(500).send(errorMessage);
-        });
-    });
+      var request = new InsertIdeaRequest();
+      request.user = req.user;
+      request.idea = <IIdea>req.body;
 
-    router.post("/join", function (req, res, next) {
-      ideaRepository.JoinIdea(req.body.ideaId, req.user)
-        .then(data => {
-          console.log("Updated joinedList:", JSON.stringify(data));
-          res.sendStatus(200);
-        })
-        .catch(err => {
-          let errorMessage = `Unable to update item. Error JSON: ${err}`;
-          console.error(errorMessage);
-          res.status(500).send(errorMessage);
-        });
-    });
+      await application.ExecuteAsync<InsertIdeaRequest, InsertIdeaResponse>(request);
+      res.sendStatus(200);
 
-    router.post("/unjoin", function (req, res, next) {
-      ideaRepository.UnJoinIdea(req.body.ideaId, req.user)
-        .then(data => {
-          console.log("Updated joinedList:", JSON.stringify(data));
-          res.sendStatus(200);
-        })
-        .catch(err => {
-          let errorMessage = `Unable to update item. Error JSON: ${err}`;
-          console.error(errorMessage);
-          res.status(500).send(errorMessage);
-        });
-    });
+    }));
+
+    router.post("/edit-title", catchAsyncErrors(async function (req, res, next) {
+
+      var request = new EditIdeaRequest();
+      request.user = req.user;
+      request.idea = <IIdea>req.body;
+      request.mode = EditMode.Title;
+
+      await application.ExecuteAsync<EditIdeaRequest, EditIdeaResponse>(request);
+      res.sendStatus(200);
+
+    }));
+
+    router.post("/edit-overview", catchAsyncErrors(async function (req, res, next) {
+
+      var request = new EditIdeaRequest();
+      request.user = req.user;
+      request.idea = <IIdea>req.body;
+      request.mode = EditMode.Overview;
+
+      await application.ExecuteAsync<EditIdeaRequest, EditIdeaResponse>(request);
+      res.sendStatus(200);
+
+    }));
+
+    router.post("/edit-description", catchAsyncErrors(async function (req, res, next) {
+
+      var request = new EditIdeaRequest();
+      request.user = req.user;
+      request.idea = <IIdea>req.body;
+      request.mode = EditMode.Description;
+
+      await application.ExecuteAsync<EditIdeaRequest, EditIdeaResponse>(request);
+      res.sendStatus(200);
+
+    }));
+
+    router.post("/like", catchAsyncErrors(async function (req, res, next) {
+
+      var request = new ToggleIdeaLikeRequest();
+      request.user = req.user;
+      request.ideaId = req.body.ideaId
+
+      await application.ExecuteAsync<ToggleIdeaLikeRequest, ToggleIdeaLikeResponse>(request);
+      res.sendStatus(200);
+
+    }));
+
+    router.post("/join", catchAsyncErrors(async function (req, res, next) {
+
+      var request = new JoinIdeaRequest();
+      request.user = req.user;
+      request.ideaId = req.body.ideaId
+
+      await application.ExecuteAsync<JoinIdeaRequest, JoinIdeaResponse>(request);
+      res.sendStatus(200);
+
+    }));
+
+    router.post("/unjoin", catchAsyncErrors(async function (req, res, next) {
+
+      var request = new LeaveIdeaRequest();
+      request.user = req.user;
+      request.ideaId = req.body.ideaId
+
+      await application.ExecuteAsync<LeaveIdeaRequest, LeaveIdeaResponse>(request);
+      res.sendStatus(200);
+
+    }));
 
     app.use(path, router);
   }
-
 }
 
 export default new IdeasRouteConfigurator();

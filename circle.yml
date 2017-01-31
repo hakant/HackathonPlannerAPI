@@ -1,0 +1,24 @@
+## Customize the test machine
+machine:
+  node:
+    version: 5.11
+  java:
+    version: openjdk7
+  post:
+    - curl -k -L -o dynamodb-local.tgz http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz
+    - tar -xzf dynamodb-local.tgz
+    - "java -Xms1024m -Xmx1024m -Djava.library.path=~/DynamoDBLocal_lib -jar ~/DynamoDBLocal.jar --port 8000":
+        background: true
+
+  # Override /etc/hosts
+  hosts:
+    circlehost: 127.0.0.1
+    dev.mycompany.com: 127.0.0.1
+
+  # Add some environment variables
+  environment:
+    CIRCLE_ENV: test
+
+compile:
+  override:
+    - tsc -p .
