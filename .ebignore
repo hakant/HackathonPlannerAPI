@@ -1,0 +1,8 @@
+.git/
+node_modules/
+migrations/
+.vscode/
+_secrets.txt
+.gitignore
+README.md
+circle.yml
